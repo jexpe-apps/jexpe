@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+    cursor: default;
+    padding: 0;
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    @apply bg-primary-900;
+    @apply text-secondary-50;
+
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
+
+img, a {
+    -webkit-user-drag: none;
+}
