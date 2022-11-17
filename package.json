@@ -11,8 +11,8 @@
     "@hello-pangea/dnd": "^16.0.1",
     "@react-hook/resize-observer": "^1.2.6",
     "@tauri-apps/api": "^1.2.0",
-    "jotai": "^1.9.1",
-    "next": "^13.0.2",
+    "jotai": "^1.9.2",
+    "next": "^13.0.3",
     "phosphor-react": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,11 +25,11 @@
     "@tauri-apps/cli": "^1.2.0",
     "@types/node": "^18.7.11",
     "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
+    "@types/react-dom": "^18.0.9",
     "autoprefixer": "^10.4.13",
-    "postcss": "^8.4.18",
+    "postcss": "^8.4.19",
     "prettier": "^2.7.1",
-    "tailwindcss": "^3.2.3",
-    "typescript": "^4.7.4"
+    "tailwindcss": "^3.2.4",
+    "typescript": "^4.9.3"
   }
 }
