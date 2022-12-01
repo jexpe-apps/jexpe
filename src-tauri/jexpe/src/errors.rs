@@ -1,1 +1,0 @@
-pub const APP_DATA_DIR_INVALID: &str = "ERROR#APP_DATA_DIR_INVALID";

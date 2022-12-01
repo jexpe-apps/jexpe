@@ -1,41 +1,63 @@
-import { invoke } from '@tauri-apps/api'
-import dynamic from 'next/dynamic'
-import { useEffect } from 'react'
-import { DynamicTerminal, Vault } from 'src/components'
-import { useVault } from 'src/contexts'
 import { NextPageWithLayout } from 'src/types'
-
-// const Home: NextPageWithLayout = () => {
-//
-//     const { vaults } = useVault()
-//
-//     return (
-//         <div className='h-full w-full flex flex-col p-10 gap-5'>
-//
-//             <div className='flex flex-col gap-2'>
-//                 <h1 className='font-semibold text-2xl'>Vaults</h1>
-//                 <hr className='border-primary-500' />
-//             </div>
-//
-//             <div className='grid grid-cols-3 gap-5'>
-//                 {vaults?.map((vault, index) => (
-//                     <Vault key={index} vault={vault} />
-//                 ))}
-//             </div>
-//
-//         </div>
-//     )
-// }
-//
-// export default Home
-
+import { Button, Paper, PasswordInput, Stack } from '@mantine/core'
+import { useForm } from '@mantine/form'
+import { invoke } from '@tauri-apps/api/tauri'
+import { showNotification } from '@mantine/notifications'
+import { X } from 'phosphor-react'
 
 const Page: NextPageWithLayout = () => {
+    const form = useForm({
+        initialValues: {
+            password: '',
+        },
+    })
 
     return (
-        <div className='h-full w-full p-2'>
-            <DynamicTerminal />
-        </div>
+        <Paper withBorder w="30%" p="xl">
+            <form
+                onSubmit={form.onSubmit(() => {
+                    invoke('open_vault', {
+                        masterPassword: form.values.password,
+                    })
+                        .then((res) =>
+                            showNotification({
+                                title: 'Success',
+                                message: 'Vault opened',
+                                icon: <X size={18} />,
+                            })
+                        )
+                        .catch((err) =>
+                            showNotification({
+                                color: 'red',
+                                title: 'Wrong password',
+                                message: err,
+                                // 'The password you entered is incorrect',
+                                icon: <X size={18} />,
+                            })
+                        )
+                })}
+            >
+                <Stack>
+                    <PasswordInput
+                        required
+                        label="Password"
+                        placeholder="Your password"
+                        value={form.values.password}
+                        onChange={(event) =>
+                            form.setFieldValue(
+                                'password',
+                                event.currentTarget.value
+                            )
+                        }
+                        error={
+                            form.errors.password &&
+                            'Password should include at least 6 characters'
+                        }
+                    />
+                    <Button type="submit">Unlock vault</Button>
+                </Stack>
+            </form>
+        </Paper>
     )
 }
 

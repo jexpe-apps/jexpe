@@ -16,7 +16,7 @@ export type AppPropsWithLayout = AppProps & {
 export type FCWithChildren<V = {}> = FC<{ children?: ReactNode } & V>
 
 export type Maybe<T> = T | undefined
-export type Optional<T> = T | null
+export type Nullable<T> = T | null
 
 export type IVaultIndex = {
     id: string,

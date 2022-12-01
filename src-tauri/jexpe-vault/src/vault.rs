@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::io::{Read, Seek, SeekFrom};
 use zbox::{OpenOptions, RepoOpener};
+use zbox::Error::RepoClosed;
 pub use zbox::Repo;
 use crate::{Group, Host};
 

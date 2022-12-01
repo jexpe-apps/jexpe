@@ -1,1 +1,1 @@
-export { default as useVault } from './vault'
+export { default as useVault } from './local_vault'
