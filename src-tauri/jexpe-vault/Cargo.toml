@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-zbox = { version = "0.9.2", features = ["storage-file", "storage-sqlite", "libsodium-bundled"] }
+zbox = { path = "../zbox", features = ["storage-file", "libsodium-bundled"] }
 cuid = "1.2.0"

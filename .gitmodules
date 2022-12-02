@@ -1,0 +1,3 @@
+[submodule "src-tauri/zbox"]
+	path = src-tauri/zbox
+	url = https://github.com/jexpe-team/zbox.git

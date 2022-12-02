@@ -1,41 +1,55 @@
 import { atom, useAtom } from 'jotai'
-import { useCallback, useState } from 'react'
-import type { IVault, Maybe } from 'src/types'
+import { useCallback, useEffect, useState } from 'react'
+import { invoke } from '@tauri-apps/api/tauri'
+import { showNotification } from '@mantine/notifications'
+import { X } from 'phosphor-react'
+import { useRouter } from 'next/router'
 
-import { __LOAD_VAULT, __UNLOCK } from 'src/__dummy/vault'
-
-const vaultsAtom = atom<Maybe<IVault[]>>(undefined)
-
+const isVaultUnlockedAtom = atom<boolean | undefined>(undefined)
 const useContext = () => {
 
-    const [isLoading, setLoading] = useState(false)
-    const [vaults, setVaults] = useAtom(vaultsAtom)
+    const router = useRouter()
+    const [isVaultUnlocked, setVaultUnlocked] = useAtom(isVaultUnlockedAtom)
 
-    const unlock = useCallback(async (password: string) => {
+    const unlockVault = async (password: string) => {
 
         try {
-            setLoading(true)
+            await invoke('unlock_vault', { masterPassword: password })
+            setVaultUnlocked(true)
+            await router.push('/')
 
-            const vault = await __UNLOCK(password)
+            showNotification({
+                title: 'Success',
+                message: 'Vault opened',
+                icon: <X size={18} />,
+            })
 
-            const vaults = []
-            for (let item of vault) {
-                const vault = await __LOAD_VAULT(item.id)
-                vaults.push(vault)
-            }
-
-            setVaults(vaults)
-
-        } finally {
-            setLoading(false)
+        } catch (e: any) {
+            showNotification({
+                color: 'red',
+                title: 'Wrong password',
+                message: e, // 'The password you entered is incorrect',
+                icon: <X size={18} />,
+            })
         }
+    }
+
+    useEffect(() => {
+
+        invoke('is_vault_unlocked')
+            .then(() => setVaultUnlocked(true))
+            .catch(() => setVaultUnlocked(false))
 
     }, [])
 
+    useEffect(() => {
+        console.log('isVaultUnlocked', isVaultUnlocked)
+    }, [isVaultUnlocked])
+
     return {
-        unlock,
-        loading: isLoading,
-        vaults,
+        loading: isVaultUnlocked === undefined,
+        isVaultUnlocked,
+        unlockVault,
     }
 }
 

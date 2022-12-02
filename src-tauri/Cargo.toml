@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "jexpe",
-    "jexpe-vault"
+    "jexpe-vault",
+    "zbox"
 ]

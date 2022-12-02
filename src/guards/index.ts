@@ -1,1 +1,1 @@
-export { default as VaultGuard } from './vault'
+export { default as LocalVaultGuard } from './local_vault'

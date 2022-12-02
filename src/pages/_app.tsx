@@ -1,15 +1,15 @@
-// import 'src/globals.css'
 import 'src/xterm.css'
 
-import { VaultGuard } from 'src/guards'
 import { DefaultLayout, FullScreenLayout } from 'src/layouts'
 import { AppPropsWithLayout } from 'src/types'
 import { MantineProvider } from '@mantine/core'
 import { NotificationsProvider } from '@mantine/notifications'
+import { LocalVaultGuard } from 'src/guards'
 
 const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
-    const getLayout = Component.getLayout ?? FullScreenLayout
-    const authRequired = Component.authRequired ?? true
+
+    const getLayout = Component.getLayout ?? DefaultLayout
+    const requireVaultUnlocked = Component.requireVaultUnlocked ?? true
 
     return (
         <MantineProvider
@@ -20,7 +20,6 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
                 primaryColor: 'brand',
                 fontFamily: 'Poppins, sans-serif',
                 colors: {
-                    // override dark colors to change them for all components
                     dark: [
                         '#c1c2c5',
                         '#909296',
@@ -49,9 +48,9 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
             }}
         >
             <NotificationsProvider>
-                <VaultGuard authRequired={authRequired}>
+                <LocalVaultGuard requireUnlockedVault={requireVaultUnlocked}>
                     {getLayout(<Component {...pageProps} />)}
-                </VaultGuard>
+                </LocalVaultGuard>
             </NotificationsProvider>
         </MantineProvider>
     )

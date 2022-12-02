@@ -6,7 +6,7 @@ export type LayoutFC = (page: ReactElement) => ReactNode
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
     getLayout?: LayoutFC,
-    authRequired?: boolean,
+    requireVaultUnlocked?: boolean,
 };
 
 export type AppPropsWithLayout = AppProps & {
