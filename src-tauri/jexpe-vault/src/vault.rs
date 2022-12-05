@@ -1,9 +1,7 @@
 use crate::{Group, Host};
 use std::error::Error;
 use std::io::{Read, Seek, SeekFrom};
-use zbox::Error::RepoClosed;
-pub use zbox::Repo;
-use zbox::{OpenOptions, RepoOpener};
+use zbox::{Repo, OpenOptions, RepoOpener};
 
 pub fn open(path: &str, vault: &str, master_password: &str) -> Result<Repo, Box<dyn Error>> {
     let repo_dir = format!("file://{}/vaults/{}.vlt", path, vault);
@@ -21,7 +19,7 @@ pub fn open(path: &str, vault: &str, master_password: &str) -> Result<Repo, Box<
         .version_limit(3)
         .open(&repo_dir, &master_password)?;
 
-    // We should destroy the password as soon as possible after calling this method.
+    //We should destroy the password as soon as possible after calling this method.
     // drop(master_password);
 
     Ok(repo)

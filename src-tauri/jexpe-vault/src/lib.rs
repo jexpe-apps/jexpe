@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use zbox::init_env;
 
 pub mod vault;
+pub mod token;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct HostService {
