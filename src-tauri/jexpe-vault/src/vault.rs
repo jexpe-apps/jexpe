@@ -1,31 +1,10 @@
-use crate::{Group, Host};
+use std::borrow::BorrowMut;
+use crate::{Group, Host, jwt, Vault};
 use std::error::Error;
 use std::io::{Read, Seek, SeekFrom};
 use zbox::{Repo, OpenOptions, RepoOpener};
 
-pub fn open(path: &str, vault: &str, master_password: &str) -> Result<Repo, Box<dyn Error>> {
-    let repo_dir = format!("file://{}/vaults/{}.vlt", path, vault);
-
-    {
-        // zbox not creating parent directories...
-        let repo_dir = format!("{}/vaults/", path);
-        let path = std::path::Path::new(&repo_dir);
-        std::fs::create_dir_all(path)?;
-    }
-
-    // Create and open a repository in current OS directory
-    let repo = RepoOpener::new()
-        .create(true)
-        .version_limit(3)
-        .open(&repo_dir, &master_password)?;
-
-    //We should destroy the password as soon as possible after calling this method.
-    // drop(master_password);
-
-    Ok(repo)
-}
-
-pub fn save_groups(repo: &mut Repo, groups: &[Group]) -> Result<(), Box<dyn Error>> {
+fn save_groups(repo: &mut Repo, groups: &[Group]) -> Result<(), Box<dyn Error>> {
     let mut file = OpenOptions::new()
         .create(true)
         .truncate(true)
@@ -37,7 +16,7 @@ pub fn save_groups(repo: &mut Repo, groups: &[Group]) -> Result<(), Box<dyn Erro
     Ok(())
 }
 
-pub fn get_groups(repo: &mut Repo) -> Result<Vec<Group>, Box<dyn Error>> {
+pub(crate) fn get_groups(repo: &mut Repo) -> Result<Vec<Group>, Box<dyn Error>> {
     // Create and open a file in repository for writing
     let mut file = OpenOptions::new()
         .read(true)
@@ -56,7 +35,7 @@ pub fn get_groups(repo: &mut Repo) -> Result<Vec<Group>, Box<dyn Error>> {
     Ok(entities)
 }
 
-pub fn update_group(
+fn update_group(
     repo: &mut Repo,
     id: String,
     parent: Option<String>,
@@ -78,7 +57,7 @@ pub fn update_group(
     Ok(groups)
 }
 
-pub fn create_group(
+pub(crate) fn create_group(
     repo: &mut Repo,
     parent: Option<String>,
     display_name: String,
@@ -96,7 +75,7 @@ pub fn create_group(
     Ok(groups)
 }
 
-pub fn delete_group(repo: &mut Repo, id: String) -> Result<Vec<Group>, Box<dyn Error>> {
+fn delete_group(repo: &mut Repo, id: String) -> Result<Vec<Group>, Box<dyn Error>> {
     let mut groups = get_groups(repo)?;
 
     let index = groups.iter().position(|group| group.id == id);
@@ -108,7 +87,7 @@ pub fn delete_group(repo: &mut Repo, id: String) -> Result<Vec<Group>, Box<dyn E
     Ok(groups)
 }
 
-pub fn get_hosts(repo: &mut Repo) -> Result<Vec<Host>, Box<dyn Error>> {
+pub(crate) fn get_hosts(repo: &mut Repo) -> Result<Vec<Host>, Box<dyn Error>> {
     // Create and open a file in repository for writing
     let mut file = OpenOptions::new().create(true).open(repo, "/hosts.json")?;
 

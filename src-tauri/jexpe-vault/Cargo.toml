@@ -13,3 +13,4 @@ cuid = "1.2.0"
 jsonwebtoken = { version = "8", default-features = false }
 rand = "0.8.5"
 chrono = "0.4.23"
+lazy_static = "1.4.0"

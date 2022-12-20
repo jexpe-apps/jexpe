@@ -1,15 +1,10 @@
-import { Flex } from '@mantine/core'
 import { LayoutFC } from 'src/types'
 
 const Layout: LayoutFC = (page) => {
     return (
-        <Flex
-            style={{ height: '100vh', width: '100vw' }}
-            align="center"
-            justify="center"
-        >
+        <div className='h-screen w-screen flex flex-col justify-center items-center'>
             {page}
-        </Flex>
+        </div>
     )
 }
 

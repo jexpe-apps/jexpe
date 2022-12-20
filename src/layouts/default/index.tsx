@@ -1,14 +1,13 @@
 import { LayoutFC } from 'src/types'
-import { AppShell } from '@mantine/core'
-import { Sidebar } from 'src/components'
+import { TabManager } from 'src/components'
 
 const Layout: LayoutFC = (page) => {
 
     return (
-        <AppShell
-            navbar={<Sidebar />}>
+        <div className='h-screen w-screen flex flex-col'>
+            <TabManager />
             {page}
-        </AppShell>
+        </div>
     )
 
 }

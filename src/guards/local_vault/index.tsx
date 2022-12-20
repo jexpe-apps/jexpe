@@ -1,41 +1,40 @@
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
-import { useVault } from 'src/contexts'
+import { useLocalVault } from 'src/contexts'
 import type { FCWithChildren } from 'src/types'
-import { Flex, LoadingOverlay } from '@mantine/core'
+import { Spinner } from 'src/components'
 
 const Guard: FCWithChildren<{
-    requireUnlockedVault: boolean
-}> = ({ children, requireUnlockedVault }) => {
+    protectedRoute: boolean
+}> = ({ children, protectedRoute }) => {
 
     const router = useRouter()
-    const { loading, isVaultUnlocked } = useVault()
+    const { loading, token } = useLocalVault()
 
-    useEffect(() => {
-
-        if (!requireUnlockedVault || loading) {
-            return
-        }
-
-        if (!isVaultUnlocked) {
-            router.push('/auth/unlock')
-                .catch(console.error)
-            return
-        }
-
-    }, [])
-
-    if (loading || (requireUnlockedVault && isVaultUnlocked === undefined)) {
-        return (
-            <Flex
-                style={{ height: '100vh', width: '100vw' }}
-                align='center'
-                justify='center'
-            >
-                <LoadingOverlay visible={true} />
-            </Flex>
-        )
-    }
+    // useEffect(() => {
+    //
+    //     if (!protectedRoute) {
+    //         return
+    //     }
+    //
+    //     if (loading) {
+    //         return
+    //     }
+    //
+    //     if (token === undefined) {
+    //         router.push('/auth/unlock')
+    //             .catch(console.error)
+    //     }
+    //
+    // }, [])
+    //
+    // if (protectedRoute && token === undefined) {
+    //     return (
+    //         <div className='h-screen flex items-center justify-center'>
+    //             <Spinner />
+    //         </div>
+    //     )
+    // }
 
     return <>{children}</>
 }
