@@ -9,7 +9,7 @@ const Component: FC<{
 
     return (
         <div
-            className={`flex mr-2 items-center border border-dark-500 py-1 px-2 justify-between rounded w-[256px] ${dragging ? 'border-dark-300 bg-dark-500' : 'bg-dark-700'}`}>
+            className={`flex mr-2 items-center border border-dark-500 py-1 px-2 justify-between rounded w-[256px] ${dragging ? 'shadow border-dark-300 bg-dark-500' : 'bg-dark-700'}`}>
 
             <div className='flex items-center gap-2'>
                 <Image src={tab.icon} alt='icon' width={16} height={16} />

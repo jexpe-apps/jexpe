@@ -28,13 +28,13 @@ export interface IVault {
 
 export interface IVaultGroup {
     id: string,
-    parent: Nullable<string>,
+    parent?: string,
     display_name: string,
 }
 
 export interface IVaultHost {
     id: string,
-    parent: Nullable<string>,
+    parent?: string,
     display_name: string,
     hostname: string,
     services: IVaultHostService[],

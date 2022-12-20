@@ -1,7 +1,7 @@
 import { Terminal, TerminalWindow, X } from 'phosphor-react'
 import React, { FC, useState } from 'react'
 import { DragDropContext, Draggable, DraggableProvided, Droppable, OnDragEndResponder } from '@hello-pangea/dnd'
-import { __TABS } from 'src/__dummy/tabs'
+import { __TABS } from 'src/__backend__/tabs'
 import { HomeButton, OptionsMenu, Tab } from './components'
 
 const Component: FC = () => {
