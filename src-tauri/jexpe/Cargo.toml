@@ -14,7 +14,10 @@ tauri-build = { version = "1.2", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["api-all"] }
-jexpe-vault = { path = "../jexpe-vault" }
+#jexpe-vault = { path = "../jexpe-vault" }
+portable-pty = { path = "../pty" }
+crossbeam-channel = "0.5"
+cuid = "1.2.0"
 
 [features]
 # by default Tauri runs in production mode

@@ -8,25 +8,44 @@ interface IShell {
     command: string,
 }
 
+interface IPty {
+    id: string,
+    shell: IShell,
+}
+
 const shellsAtom = atom<IShell[]>([])
+const ptysAtom = atom<IPty[]>([])
 
 const useContext = () => {
 
     const [shells, setShells] = useAtom(shellsAtom)
+    const [ptys, setPtys] = useAtom(ptysAtom)
 
-    const fetchAvailableSystemShells = async () => {
-        const shells = await invoke('get_os_shells', {})
-        setShells(shells as IShell[])
+    const getAvailableSystemShells = async () => {
+        const shells = await invoke<IShell[]>('get_available_system_shells', {})
+        setShells(shells)
+    }
+
+    const openPty = async (shell: IShell) => {
+        const id = await invoke<string>('open_pty', { shell })
+        setPtys([{ id, shell }, ...ptys])
+    }
+
+    const writeToPty = async (id: string, input: string) => {
+        await invoke('write_to_pty', { id, input })
     }
 
     useEffect(() => {
 
-        fetchAvailableSystemShells()
+        getAvailableSystemShells()
 
     }, [])
 
     return {
         shells,
+        ptys,
+        openPty,
+        writeToPty,
     }
 
 }
