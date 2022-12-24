@@ -11,15 +11,10 @@ edition = "2021"
 tauri-build = { version = "1.2", features = [] }
 
 [dependencies]
-serde_json = "1.0"
+serde_json = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["api-all"] }
-#jexpe-vault = { path = "../jexpe-vault" }
-# zbox = { git = "https://github.com/jexpe-team/zbox" }
-#portable-pty = { path = "../pty" }
-portable-pty = { git = "https://github.com/wez/wezterm.git" }
-crossbeam-channel = "0.5"
-cuid = "1.2.0"
+pty = { path = "../pty" }
 
 [features]
 # by default Tauri runs in production mode

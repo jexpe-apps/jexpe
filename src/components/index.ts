@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic'
 
+export { default as SafeHydrate } from './safe_hydrate'
 export { default as Titlebar } from './titlebar'
 export { default as Sidebar } from './sidebar'
 export { default as Tabs } from './tab_manager'

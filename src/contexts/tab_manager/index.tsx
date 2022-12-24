@@ -2,8 +2,7 @@ import { atom, useAtom } from 'jotai'
 import { invoke } from '@tauri-apps/api/tauri'
 import { useEffect } from 'react'
 import { listen } from '@tauri-apps/api/event'
-import dynamic from 'next/dynamic'
-import { Terminal as ITerminal } from 'xterm'
+import { Terminal } from 'xterm'
 
 interface IShell {
     display_name: string,
@@ -14,7 +13,7 @@ interface IShell {
 interface IPty {
     id: string,
     shell: IShell,
-    terminal: ITerminal,
+    terminal: Terminal,
 }
 
 const shellsAtom = atom<IShell[]>([])
@@ -32,8 +31,6 @@ const useContext = () => {
 
     const openPty = async (shell: IShell) => {
         const id = await invoke<string>('open_pty', { shell })
-
-        const { Terminal } = await import('xterm') // dynamic import xterm
 
         setPtys([{
             id,
