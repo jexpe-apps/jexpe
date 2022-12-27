@@ -5,8 +5,8 @@ contribution though, please make sure to take a moment and read through the [Cod
 well as the appropriate section for the contribution you intend to make:
 
 - [Issue Reporting Guidelines](#issue-reporting-guidelines)
-- [Pull Request Guidelines](#pull-request-guidelines)
 - [Development Guide](#development-guide)
+- [Pull Request Guidelines](#pull-request-guidelines)
 
 **We strongly advise you to join the [Jexpe Discord](https://discord.com/invite/cfHmUnPDtM) to discuss your contribution
 with the community.**
@@ -42,21 +42,6 @@ with the community.**
   fixing other bugs, answering other questions, new features, new documentation, etc. The issue list is not paid
   support, and we cannot make guarantees about how fast your issue can be resolved.
 
-## Pull Request Guidelines
-
-- It's OK to have multiple small commits as you work on the PR - we will let GitHub automatically squash it before
-  merging.
-
-- If adding new feature:
-
-    - Provide convincing reason to add this feature. Ideally you should open a suggestion issue first and have it
-      greenlighted before working on it.
-
-- If fixing a bug:
-    - If you are resolving a special issue, add `(fix: #xxxx[,#xxx])` (#xxxx is the issue id) in your PR title for a
-      better release log, e.g. `fix: update entities encoding/decoding (fix #3899)`.
-    - Provide detailed description of the bug in the PR, or link to an issue that does.
-
 ## Development Guide
 
 **Jexpe is undergoing rapid development right now, and the docs match the latest published version. They
@@ -64,7 +49,60 @@ are horribly out of date when compared with the code in the development branch (
 doesn't cover all of Jexpe's functions in depth. If you have any questions, don't hesitate to ask in
 our [Jexpe Discord](https://discord.com/invite/cfHmUnPDtM)**
 
+Is this repository we stick to the following branch structure:
+
+| Branch | Description |
+|-|-|
+| `dev` | The develop branch is where all the working branches are merged. It's not possible to push code directly here, not even for a maintainer. Everything in `dev` must come from a pull request after a code review. |
+| `<working>` | Working branches are always created from `dev` and to `dev` shall return! Only working branches should be merged in to the develop branch after a code review. |
+| `release` | Release branches are handled by [code owners](https://github.com/jexpe-apps/jexpe/blob/dev/.github/CODEOWNERS). A release branch contains all the features planned for that release. |
+
+## Pull Request Guidelines
+
+You must read the [Development Guide](#development-guide) section before proceeding with the pull request guidelines.
+
+In this project we stick to the following naming convention for the Pull Requst title:
+
+```
+<type>(<scope>): <short summary>
+  │       │             │
+  │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │       │
+  │       └─⫸ Commit Scope: tauri|nextjs|<issue-id>
+  │
+  └─⫸ Commit Type: build|ci|docs|feat|fix|perf|refactor
+```
+
+The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is optional.
+
+| Type | Description | Example |
+|-|-|-|
+| `build` | Changes that affect the build system or external dependencies. | build: migrate to yarn |
+| `ci` | Changes to our GitHub Actions configuration files and scripts. | ci: add build tauri osx |
+| `docs` | Documentation only changes. | docs: update README.md |
+| `feat` | A new feature. | feat(nextjs): horizontal tabs |
+| `fix` | A bug fix. | fix(#3899): fix open_vault command |
+| `perf` | A code change that improves performance. | perf(tauri): sftp file transfer |
+| `refactor` | A code change that neither fixes a bug nor adds a feature. | refactor(tauri): open_local_pty |
+
+You must also follow this convention for the branch name by using `<scope>` as the prefix followed by a `/` and the `<summary>`,
+e.g. `build/migrate_yarn`.
+
+Some clarifications:
+
+- It's OK to have multiple small commits as you work on the PR - We will let GitHub automatically squash it before
+  merging. (That is why we are restrictive about the title of the PR)
+
+- If adding new feature:
+
+    - Provide convincing reason to add this feature. Ideally you should open a suggestion issue first and have it
+      greenlighted before working on it.
+
+- If fixing a bug:
+    - If you are resolving a special issue, in the `<scope>` set the issue id in your PR title for a
+      better release log, e.g. `fix(#3899): fix open_vault command`.
+    - Provide detailed description of the bug in the PR, or link to an issue that does.
+
 ## Financial Contribution
 
-Jexpe is an MIT-licensed open source project. Its ongoing development can be supported
-via [Discord server](https://discord.com/invite/cfHmUnPDtM) boosts.
+Jexpe is an MIT-licensed open source project. Its ongoing development can be supported [here](https://github.com/jexpe-apps/jexpe/blob/dev/.github/FUNDING.yml)
