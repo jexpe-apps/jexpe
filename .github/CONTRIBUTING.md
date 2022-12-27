@@ -61,47 +61,58 @@ Is this repository we stick to the following branch structure:
 
 You must read the [Development Guide](#development-guide) section before proceeding with the pull request guidelines.
 
-In this project we stick to the following naming convention for the Pull Requst title:
+In this project we stick to the following naming convention for the Pull Request title:
 
-```
+```yml
 <type>(<scope>): <short summary>
   │       │             │
-  │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │       │             └─⫸ Summary: Present tense. Not capitalized. No period at the end.
   │       │
-  │       └─⫸ Commit Scope: tauri|nextjs|<issue-id>
+  │       └─⫸ Scope: tauri|nextjs|<issue-id>
   │
-  └─⫸ Commit Type: build|ci|docs|feat|fix|perf|refactor
+  └─⫸ Type: build|ci|docs|feat|fix|perf|refactor
 ```
 
 The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is optional.
 
-| Type | Description | Example |
-|-|-|-|
-| `build` | Changes that affect the build system or external dependencies. | build: migrate to yarn |
-| `ci` | Changes to our GitHub Actions configuration files and scripts. | ci: add build tauri osx |
-| `docs` | Documentation only changes. | docs: update README.md |
-| `feat` | A new feature. | feat(nextjs): horizontal tabs |
-| `fix` | A bug fix. | fix(#3899): fix open_vault command |
-| `perf` | A code change that improves performance. | perf(tauri): sftp file transfer |
-| `refactor` | A code change that neither fixes a bug nor adds a feature. | refactor(tauri): open_local_pty |
+##### Type must be one of the following:
+>* **build**: Changes that affect the build system or external dependencies (example scopes: yarn)
+>* **ci**: Changes to our CI configuration files and scripts (examples: Github Actions)
+>* **docs**: Documentation only changes
+>* **feat**: A new feature
+>* **fix**: A bug fix
+>* **perf**: A code change that improves performance
+>* **refactor**: A code change that neither fixes a bug nor adds a feature
 
-You must also follow this convention for the branch name by using `<scope>` as the prefix followed by a `/` and the `<summary>`,
-e.g. `build/migrate_yarn`.
 
-Some clarifications:
+##### Scope should be one of the following:
+>The scope should be the name of the package affected.
+>
+>* **tauri**: Backend **only** changes
+>* **nextjs**: Frontend **only** changes
+>* **\<issue-id\>**: Reference of the fixed issue
 
-- It's OK to have multiple small commits as you work on the PR - We will let GitHub automatically squash it before
-  merging. (That is why we are restrictive about the title of the PR)
+##### Summary
+>Use the summary field to provide a succinct description of the change:
+>
+>* use the imperative, present tense: "change" not "changed" nor "changes"
+>* don't capitalize the first letter
+>* no dot (.) at the end
 
-- If adding new feature:
+**You must follow this convention also for the working branch name: `<scope>/<summary>`, e.g. `build/migrate_yarn`.**
 
-    - Provide convincing reason to add this feature. Ideally you should open a suggestion issue first and have it
-      greenlighted before working on it.
-
-- If fixing a bug:
-    - If you are resolving a special issue, in the `<scope>` set the issue id in your PR title for a
-      better release log, e.g. `fix(#3899): fix open_vault command`.
-    - Provide detailed description of the bug in the PR, or link to an issue that does.
+##### Some clarifications
+>- It's OK to have multiple small commits as you work on the PR - We will let GitHub automatically squash it before
+>  merging. (That is why we are restrictive about the title of the PR)
+>
+>- If adding new feature:
+>
+>    - Provide convincing reason to add this feature. Ideally you should open a suggestion issue first and have it
+>      greenlighted before working on it.
+>
+>- If fixing a bug:
+>    - If you are resolving a special issue, in the `<scope>` set the issue id in your PR title for a better release log, e.g. `fix(#3899): ...`.
+>    - Provide detailed description of the bug in the PR, or link to an issue that does.
 
 ## Financial Contribution
 
