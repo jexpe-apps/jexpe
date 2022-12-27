@@ -12,4 +12,4 @@
 
 Join our [Jexpe Discord](https://discord.com/invite/cfHmUnPDtM), and be part of our community! Ask questions, voice ideas, and share your projects.
 
-Our [Code of Conduct](https://github.com/jexpe-apps/jexpe/blob/main/CODE_OF_CONDUCT.md) applies to all Jexpe community channels.
+Our [Code of Conduct](https://github.com/jexpe-apps/jexpe/blob/main/.github/CODE_OF_CONDUCT.md) applies to all Jexpe community channels.
