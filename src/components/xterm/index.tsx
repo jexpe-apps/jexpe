@@ -7,7 +7,6 @@ import { useTabManager } from 'src/contexts'
 const Component: FC<{
     id: string
 }> = ({ id }) => {
-
     const target = useRef<HTMLDivElement | null>(null)
 
     const { ptys, writeToPty } = useTabManager()
@@ -15,11 +14,8 @@ const Component: FC<{
     const fitAddon = new FitAddon()
 
     useEffect(() => {
-
-
         if (target && target.current) {
-
-            const pty = ptys.find(pty => pty.id === id)
+            const pty = ptys.find((pty) => pty.id === id)
             if (!pty) {
                 return // TODO: handle this
             }
@@ -33,15 +29,11 @@ const Component: FC<{
             })
             fitAddon.fit()
         }
-
     }, [])
 
     useResizeObserver(target, () => fitAddon.fit())
 
-    return (
-        <div ref={target} style={{ height: '100%', width: '100%' }} />
-    )
-
+    return <div ref={target} style={{ height: '100%', width: '100%' }} />
 }
 
 export default Component
