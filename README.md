@@ -15,7 +15,7 @@
   <a aria-label="License" href="https://github.com/jexpe-apps/jexpe/blob/dev/LICENSE">
     <img alt="GitHub" src="https://img.shields.io/github/license/jexpe-apps/jexpe?style=for-the-badge&labelColor=000000">
   </a>
-  <a aria-label="Join the community on Discord" href="https://dicsord.com/invite/cfHmUnPDtM">
+  <a aria-label="Join the community on Discord" href="https://discord.com/invite/cfHmUnPDtM">
     <img alt="Discord" src="https://img.shields.io/discord/1056200236730699776?color=6A47C2&label=COMMUNITY&labelColor=000000&logo=discord&logoColor=FFF&style=for-the-badge">
   </a>
 </p>
