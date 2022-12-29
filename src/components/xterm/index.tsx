@@ -2,7 +2,10 @@ import useResizeObserver from '@react-hook/resize-observer'
 import { FC, useEffect, useRef } from 'react'
 import { CanvasAddon } from 'xterm-addon-canvas'
 import { FitAddon } from 'xterm-addon-fit'
-import { useTabManager } from 'src/contexts'
+            import { useTabManager } from 'src/contexts'
+
+
+
 
 const Component: FC<{
     id: string
