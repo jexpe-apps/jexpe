@@ -2,3 +2,19 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx lint-staged
+
+# Checking branch name
+branch="$(git rev-parse --abbrev-ref HEAD)"
+branch_regex="^(build|ci|docs|feat|fix|perf|refactor)\/[a-z0-9_]+$"
+
+message="
+[❌ ] Working branch name must adhere to this contract: \"<type>/<summary>\", e.g. \"build/migrate_yarn\".
+Your commit will be rejected! You should rename your branch to a valid name and try again.
+(Hint: git branch -m <new_name>)
+"
+
+if [[ ! $branch =~ $branch_regex ]]
+then
+    echo "$message"
+    exit 1
+fi
