@@ -1,3 +1,9 @@
+/*
+    Credits for this pty implementation goes to:
+    https://github.com/chipsenkbeil from his
+    https://github.com/chipsenkbeil/distant project.
+ */
+
 use tokio::{io, sync::mpsc};
 
 /// Exit status of a remote process
@@ -18,9 +24,9 @@ impl ExitStatus {
 }
 
 impl<T, E> From<Result<T, E>> for ExitStatus
-where
-    T: Into<ExitStatus>,
-    E: Into<ExitStatus>,
+    where
+        T: Into<ExitStatus>,
+        E: Into<ExitStatus>,
 {
     fn from(res: Result<T, E>) -> Self {
         match res {
@@ -67,8 +73,8 @@ pub enum WaitTx {
 impl WaitTx {
     /// Send exit status to receiving-side of wait
     pub async fn send<S>(&mut self, status: S) -> io::Result<()>
-    where
-        S: Into<ExitStatus>,
+        where
+            S: Into<ExitStatus>,
     {
         let status = status.into();
 
