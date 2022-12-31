@@ -1,3 +1,9 @@
+/*
+    Credits for this pty implementation goes to:
+    https://github.com/chipsenkbeil from his
+    https://github.com/chipsenkbeil/distant project.
+ */
+
 use std::time::Duration;
 
 /// Represents the maximum size (in bytes) that data will be read from pipes
