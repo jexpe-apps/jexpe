@@ -2,9 +2,9 @@
 
 This roadmap should give direction on what to expect in the next few days, weeks as we continue to build together with the community.
 
-Goal status:
-[ ✅ ] = achieved
-[ ❌ ] = not achieved
+Goal status:  
+[ ✅ ] = achieved  
+[ ❌ ] = not achieved  
 [ ⛳ ] = planned
 
 _Please note that this is not the final roadmap and what you see can be updated down the road, so check back regularly for any future updates._
@@ -18,16 +18,19 @@ _Please note that this is not the final roadmap and what you see can be updated 
 **[ ✅ ] - MARKET ANALYSIS**
 
 > Once the idea was born, we looked for competitors to see if there was a viable market. We found a few and analyzed and grouped them according to two parameters: all-in-one and cross-platform. We got:
-
--   Putty ([https://www.putty.org/](https://www.putty.org/ 'https://www.putty.org/'))
--   FileZilla ([https://filezilla-project.org/](https://filezilla-project.org/ 'https://filezilla-project.org/'))
--   WinSCP ([https://winscp.net/](https://winscp.net/ 'https://winscp.net/'))
--   CyberDuck ([https://cyberduck.io/](https://cyberduck.io/ 'https://cyberduck.io/'))
--   MobaXterm ([https://mobaxterm.mobatek.net/](https://mobaxterm.mobatek.net/ 'https://mobaxterm.mobatek.net/'))
--   WindTerm ([https://github.com/kingToolbox/WindTerm](https://github.com/kingToolbox/WindTerm 'https://github.com/kingToolbox/WindTerm'))
--   Termius ([https://termius.com/](https://termius.com/ 'https://termius.com/'))
-
-You'll probably think that we are a Termius copycat and that's partially true. Analyzing Termius' user base, we can deduce that almost 60% of all the users know it and use it on mobile. We are extremely focused on desktop instead.
+>
+> -   Putty ([https://www.putty.org/](https://www.putty.org/ 'https://www.putty.org/'))
+> -   FileZilla ([https://filezilla-project.org/](https://filezilla-project.org/ 'https://filezilla-project.org/'))
+> -   WinSCP ([https://winscp.net/](https://winscp.net/ 'https://winscp.net/'))
+> -   CyberDuck ([https://cyberduck.io/](https://cyberduck.io/ 'https://cyberduck.io/'))
+> -   MobaXterm ([https://mobaxterm.mobatek.net/](https://mobaxterm.mobatek.net/ 'https://mobaxterm.mobatek.net/'))
+> -   WindTerm ([https://github.com/kingToolbox/WindTerm](https://github.com/kingToolbox/WindTerm 'https://github.com/kingToolbox/WindTerm'))
+> -   Termius ([https://termius.com/](https://termius.com/ 'https://termius.com/'))
+>
+> You'll probably think that we are a Termius copycat and that's
+> partially true. Analyzing Termius' user base, we can deduce that
+> almost 60% of all the users know it and use it on mobile. We are
+> extremely focused on desktop instead.
 
 **Here is why Jexpe is better:**
 
