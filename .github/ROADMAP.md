@@ -31,11 +31,12 @@ _Please note that this is not the final roadmap and what you see can be updated 
 > partially true. Analyzing Termius' user base, we can deduce that
 > almost 60% of all the users know it and use it on mobile. We are
 > extremely focused on desktop instead.
-
-**Here is why Jexpe is better:**
-
--   **It's lightweight**: Jexpe runs on Tauri which completely overcome Termius' stack (Electron) in terms of security and performance.
--   **It's open source**: We strongly believe that in 21st century a software like this should be free
+>
+> **Here is why Jexpe is better:**
+>
+> -   **It's lightweight**: Jexpe runs on Tauri which completely overcome Termius' stack (Electron) in terms of security and
+>     performance.
+> -   **It's open source**: We strongly believe that in 21st century a software like this should be free
 
 **[ ✅ ] - SOFTWARE STACK**
 
