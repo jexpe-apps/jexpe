@@ -7,7 +7,5 @@ edition = "2021"
 
 [dependencies]
 portable-pty = { git = "https://github.com/wez/wezterm.git" }
-cuid = { version = "1.2.0" }
-tokio = { version = "1.23.0", features = ["full"] }
-rand = { version = "0.8.5", features = ["getrandom"] }
+async-std = { version = "1.12.0" }
 log = { version = "0.4.17" }

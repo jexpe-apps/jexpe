@@ -1,10 +1,5 @@
-/*
-    Credits for this pty implementation goes to:
-    https://github.com/chipsenkbeil from his
-    https://github.com/chipsenkbeil/distant project.
- */
-
-use tokio::{io, sync::mpsc};
+use std::io;
+use async_std::channel::{bounded, Receiver, Sender};
 
 /// Exit status of a remote process
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -56,7 +51,7 @@ impl From<std::process::ExitStatus> for ExitStatus {
 
 /// Creates a new channel for when the exit status will be ready
 pub fn channel() -> (WaitTx, WaitRx) {
-    let (tx, rx) = mpsc::channel(1);
+    let (tx, rx) = bounded(1);
     (WaitTx::Pending(tx), WaitRx::Pending(rx))
 }
 
@@ -67,7 +62,7 @@ pub enum WaitTx {
     Done,
 
     /// Notification has not been sent
-    Pending(mpsc::Sender<ExitStatus>),
+    Pending(Sender<ExitStatus>),
 }
 
 impl WaitTx {
@@ -111,7 +106,7 @@ pub enum WaitRx {
     Dropped,
 
     /// Exit status is not ready and has a "oneshot" to be invoked when available
-    Pending(mpsc::Receiver<ExitStatus>),
+    Pending(Receiver<ExitStatus>),
 }
 
 impl WaitRx {
