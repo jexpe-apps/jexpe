@@ -3,6 +3,7 @@ import { FC, useEffect, useRef } from 'react'
 import { CanvasAddon } from 'xterm-addon-canvas'
 import { FitAddon } from 'xterm-addon-fit'
 import { useTabManager } from 'src/contexts'
+import { WebglAddon } from 'xterm-addon-webgl'
 
 const Component: FC<{
     id: string

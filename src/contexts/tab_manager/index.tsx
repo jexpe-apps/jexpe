@@ -24,12 +24,12 @@ const useContext = () => {
     const [ptys, setPtys] = useAtom(ptysAtom)
 
     const getAvailableSystemShells = async () => {
-        const shells = await invoke<IShell[]>('get_available_system_shells', {})
+        const shells = await invoke<IShell[]>('get_os_shells', {})
         setShells(shells)
     }
 
     const openPty = async (shell: IShell) => {
-        const id = await invoke<string>('open_pty', { shell })
+        const id = await invoke<string>('spawn_shell', { command: shell.command })
         const { Terminal } = await import('xterm')
         setPtys([
             {
@@ -39,8 +39,7 @@ const useContext = () => {
                     theme: {
                         background: '#161616',
                     },
-                    fontFamily:
-                        "MesloLGS NF, Menlo, Monaco, 'Courier New', monospace",
+                    fontFamily: 'Cascadia Mono',
                     cursorBlink: true,
                     cursorStyle: 'block',
                     // convertEol: true,
@@ -51,30 +50,32 @@ const useContext = () => {
         ])
     }
 
-    const writeToPty = async (id: string, input: string) => {
-        await invoke('write_to_pty', { id, input })
+    const writeToPty = async (id: string, data: string) => {
+        await invoke('write_shell', { id, data })
     }
 
     useEffect(() => {
         getAvailableSystemShells()
 
         const subscribeToPtyOutput = async () => {
-            const unlisten = await listen<{ id: string; data: Uint8Array }>(
-                'pty-output',
+            const unlisten = await listen<{ id: string; bytes: Uint8Array }>(
+                'pty-stdout',
                 ({ payload }) => {
                     const pty = ptys.find((pty) => pty.id === payload.id)
                     if (!pty) {
                         return // TODO: handle this
                     }
 
-                    console.log('pty-output', payload.data)
-                    pty.terminal.write(payload.data)
-                }
+                    console.log('pty-output', payload.bytes)
+                    pty.terminal.write(payload.bytes)
+                },
             )
         }
 
         subscribeToPtyOutput()
     }, [])
+
+    //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
     return {
         shells,
