@@ -1,3 +1,5 @@
+use std::io;
+use std::io::Write;
 use cuid::cuid;
 use tauri::async_runtime::spawn;
 use tauri::{AppHandle, Manager, State};
@@ -52,17 +54,16 @@ pub async fn spawn_shell(
         .map_err(|_| "Failed to generate cuid".to_string())?;
 
     let mut pty = PtyProcess::spawn(
-        command,
-        [],
+        "C:/Program Files/Git/bin/bash.exe",
+        ["-i", "-l"],
         None,
         None,
         PtySize {
-            rows: 29,
-            cols: 104,
+            rows: 27, // TODO: Get actual terminal size
+            cols: 119,
             pixel_width: 0,
             pixel_height: 0,
         },
-
     ).map_err(|_| "Failed to spawn pty".to_string())?;
 
     if let Some(mut stdout) = pty.take_stdout() {
@@ -71,6 +72,12 @@ pub async fn spawn_shell(
             while let Ok(data) = stdout.recv().await {
                 match data {
                     Some(bytes) => {
+
+                        // Uncomment this to see the bytes being sent to the frontend
+                        // let mut os_stdout = io::stdout().lock();
+                        // os_stdout.write(bytes.as_slice()).unwrap();
+                        // os_stdout.flush().unwrap();
+
                         app_handle
                             .emit_all("pty-stdout", PtyStdoutPayload {
                                 id: id.clone(),
