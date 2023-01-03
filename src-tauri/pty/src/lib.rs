@@ -3,14 +3,15 @@ use std::future::Future;
 use std::io;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use async_std::channel::{Receiver, Sender};
-use async_std::task::JoinHandle;
 use portable_pty::MasterPty;
+pub use portable_pty::PtySize;
+use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::task::JoinHandle;
 use crate::wait::WaitRx;
 
 mod constants;
 mod wait;
-mod process;
+mod pty;
 
 /// Alias to the return type of an async function (for use with traits)
 pub type FutureReturn<'a, T> = Pin<Box<dyn Future<Output=T> + Send + 'a>>;

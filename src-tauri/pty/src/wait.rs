@@ -1,5 +1,4 @@
-use std::io;
-use async_std::channel::{bounded, Receiver, Sender};
+use tokio::{io, sync::mpsc};
 
 /// Exit status of a remote process
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -19,9 +18,9 @@ impl ExitStatus {
 }
 
 impl<T, E> From<Result<T, E>> for ExitStatus
-    where
-        T: Into<ExitStatus>,
-        E: Into<ExitStatus>,
+where
+    T: Into<ExitStatus>,
+    E: Into<ExitStatus>,
 {
     fn from(res: Result<T, E>) -> Self {
         match res {
@@ -51,7 +50,7 @@ impl From<std::process::ExitStatus> for ExitStatus {
 
 /// Creates a new channel for when the exit status will be ready
 pub fn channel() -> (WaitTx, WaitRx) {
-    let (tx, rx) = bounded(1);
+    let (tx, rx) = mpsc::channel(1);
     (WaitTx::Pending(tx), WaitRx::Pending(rx))
 }
 
@@ -62,14 +61,14 @@ pub enum WaitTx {
     Done,
 
     /// Notification has not been sent
-    Pending(Sender<ExitStatus>),
+    Pending(mpsc::Sender<ExitStatus>),
 }
 
 impl WaitTx {
     /// Send exit status to receiving-side of wait
     pub async fn send<S>(&mut self, status: S) -> io::Result<()>
-        where
-            S: Into<ExitStatus>,
+    where
+        S: Into<ExitStatus>,
     {
         let status = status.into();
 
@@ -106,7 +105,7 @@ pub enum WaitRx {
     Dropped,
 
     /// Exit status is not ready and has a "oneshot" to be invoked when available
-    Pending(Receiver<ExitStatus>),
+    Pending(mpsc::Receiver<ExitStatus>),
 }
 
 impl WaitRx {
