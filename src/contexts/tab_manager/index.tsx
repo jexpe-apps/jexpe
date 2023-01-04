@@ -30,24 +30,7 @@ const useContext = () => {
 
     const openPty = async (shell: IShell) => {
         const id = await invoke<string>('spawn_shell', { command: shell.command })
-        const { Terminal } = await import('xterm')
-        setPtys([
-            {
-                id,
-                shell,
-                terminal: new Terminal({
-                    theme: {
-                        background: '#161616',
-                    },
-                    fontFamily: 'Cascadia Mono',
-                    cursorBlink: true,
-                    cursorStyle: 'block',
-                    // convertEol: true,
-                    allowProposedApi: true,
-                }),
-            },
-            ...ptys,
-        ])
+        console.log('Shell exited with id: ', id)
     }
 
     const writeToPty = async (id: string, data: string) => {
@@ -57,8 +40,9 @@ const useContext = () => {
     useEffect(() => {
         getAvailableSystemShells()
 
-        const subscribeToPtyOutput = async () => {
-            const unlisten = await listen<{ id: string; bytes: Uint8Array }>(
+        const subscribe = async () => {
+
+            const _ = await listen<{ id: string; bytes: Uint8Array }>(
                 'pty-stdout',
                 ({ payload }) => {
                     const pty = ptys.find((pty) => pty.id === payload.id)
@@ -70,12 +54,40 @@ const useContext = () => {
                     pty.terminal.write(payload.bytes)
                 },
             )
+
+            const __ = await listen<string>(
+                'pty-spawned',
+                async ({ payload }) => {
+
+                    const { Terminal } = await import('xterm')
+                    setPtys([
+                        {
+                            id: payload,
+                            shell: {
+                                display_name: 'Bash',
+                                icon: 'bash',
+                                command: 'bash',
+                            },
+                            terminal: new Terminal({
+                                theme: {
+                                    background: '#161616',
+                                },
+                                fontFamily: 'Cascadia Mono',
+                                cursorBlink: true,
+                                cursorStyle: 'block',
+                                // convertEol: true,
+                                allowProposedApi: true,
+                            }),
+                        },
+                        ...ptys,
+                    ])
+
+                },
+            )
         }
 
-        subscribeToPtyOutput()
+        subscribe()
     }, [])
-
-    //aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
     return {
         shells,

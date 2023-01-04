@@ -53,11 +53,11 @@ impl OutputChannel for Receiver<Vec<u8>> {
 pub type Environment = HashMap<String, String>;
 
 pub struct PtyProcess {
-    pty_master: Option<Arc<Mutex<Box<dyn MasterPty + Send>>>>,
+    pub pty_master: Option<Arc<Mutex<Box<dyn MasterPty + Send>>>>,
     stdin: Option<Box<dyn InputChannel>>,
     stdout: Option<Box<dyn OutputChannel>>,
-    stdin_task: Option<JoinHandle<()>>,
-    stdout_task: Option<JoinHandle<io::Result<()>>>,
+    pub stdin_task: Option<JoinHandle<()>>,
+    pub stdout_task: Option<JoinHandle<io::Result<()>>>,
     kill_tx: Sender<()>,
-    wait: WaitRx,
+    wait: Option<Box<WaitRx>>,
 }

@@ -8,7 +8,7 @@ use tokio::sync::mpsc::channel;
 use tokio::time::sleep;
 use crate::{Environment, FutureReturn, InputChannel, OutputChannel, PtyProcess, wait};
 use crate::constants::{MAX_PIPE_CHUNK_SIZE, READ_PAUSE_DURATION};
-use crate::wait::ExitStatus;
+use crate::wait::{ExitStatus, WaitRx};
 
 impl PtyProcess {
     /// Spawns a new simple process
@@ -143,7 +143,7 @@ impl PtyProcess {
             stdin_task: Some(stdin_task),
             stdout_task: Some(stdout_task),
             kill_tx,
-            wait: wait_rx,
+            wait: Some(Box::new(wait_rx)),
         })
     }
 
@@ -181,26 +181,30 @@ impl PtyProcess {
         Box::pin(inner(self))
     }
 
-    pub fn wait(&mut self) -> FutureReturn<'_, io::Result<ExitStatus>> {
-        async fn inner(this: &mut PtyProcess) -> io::Result<ExitStatus> {
-            let mut status = this.wait.recv().await?;
-
-            // Drop our master once we have finished
-            let _ = this.pty_master.take();
-
-            if let Some(task) = this.stdin_task.take() {
-                task.abort();
-            }
-            if let Some(task) = this.stdout_task.take() {
-                let _ = task.await;
-            }
-
-            if status.success && status.code.is_none() {
-                status.code = Some(0);
-            }
-
-            Ok(status)
-        }
-        Box::pin(inner(self))
+    pub fn take_wait(&mut self) -> Option<Box<WaitRx>> {
+        self.wait.take()
     }
+
+    // pub fn wait(&mut self) -> FutureReturn<'_, io::Result<ExitStatus>> {
+    //     async fn inner(this: &mut PtyProcess) -> io::Result<ExitStatus> {
+    //         let mut status = this.wait.recv().await?;
+    //
+    //         // Drop our master once we have finished
+    //         let _ = this.pty_master.take();
+    //
+    //         if let Some(task) = this.stdin_task.take() {
+    //             task.abort();
+    //         }
+    //         if let Some(task) = this.stdout_task.take() {
+    //             let _ = task.await;
+    //         }
+    //
+    //         if status.success && status.code.is_none() {
+    //             status.code = Some(0);
+    //         }
+    //
+    //         Ok(status)
+    //     }
+    //     Box::pin(inner(self))
+    // }
 }

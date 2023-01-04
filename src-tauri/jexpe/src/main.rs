@@ -1,5 +1,6 @@
 use std::collections::HashMap;
-use tokio::sync::Mutex;
+use std::sync::Arc;
+use tokio::sync::{Mutex};
 
 use pty::{PtyProcess};
 
@@ -7,7 +8,7 @@ mod shell;
 
 
 pub struct JexpeState {
-    ptys: Mutex<HashMap<String, PtyProcess>>,
+    ptys: Mutex<HashMap<String, Arc<Mutex<PtyProcess>>>>,
 }
 
 impl JexpeState {
