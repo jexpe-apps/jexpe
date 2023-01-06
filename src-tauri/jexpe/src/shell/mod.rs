@@ -9,8 +9,15 @@ struct PtyStdoutPayload {
 }
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct OsShellPayload {
+struct PtySpawnedPayload {
+    id: String,
+    shell: SystemShellPayload,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct SystemShellPayload {
     display_name: String,
     icon: String,
     command: String,
+    directory: String,
 }

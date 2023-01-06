@@ -1,11 +1,17 @@
 import React, { FC } from 'react'
-import { DragDropContext, Draggable, DraggableProvided, Droppable, OnDragEndResponder } from '@hello-pangea/dnd'
+import {
+    DragDropContext,
+    Draggable,
+    DraggableProvided,
+    Droppable,
+    OnDragEndResponder,
+} from '@hello-pangea/dnd'
 import { HomeButton, OptionsMenu, Tab } from './components'
-import { useTabManager } from 'src/contexts'
+import { useShell } from 'src/contexts'
+import { IPty } from 'src/types'
 
 const Component: FC = () => {
-
-    const { ptys } = useTabManager()
+    const { ptys } = useShell()
 
     // a little function to help us with reordering the result
     // const reorder = (list: any, startIndex: any, endIndex: any) => {
@@ -33,44 +39,66 @@ const Component: FC = () => {
     }
 
     const preventDragYMovement = (provided: DraggableProvided) => {
-
         let transform = provided.draggableProps.style?.transform
 
         if (transform) {
             transform = transform.replace(/,\s[-+]*\d+px\)/, ', 0px)')
-            provided.draggableProps.style = { ...provided.draggableProps.style, transform }
+            provided.draggableProps.style = {
+                ...provided.draggableProps.style,
+                transform,
+            }
         }
-
     }
 
     return (
-        <div className='flex items-center p-2'>
-
+        <div className="flex items-center p-2">
             <HomeButton />
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId='droppable' direction='horizontal'>
+                <Droppable droppableId="droppable" direction="horizontal">
                     {(droppable) => (
+                        <div
+                            ref={droppable.innerRef}
+                            {...droppable.droppableProps}
+                            className="flex overflow-auto"
+                        >
+                            {Array.from(ptys.values()).map(
+                                (pty: IPty, index) => (
+                                    <Draggable
+                                        key={pty.id}
+                                        draggableId={pty.id}
+                                        index={index}
+                                    >
+                                        {(draggable, state) => {
+                                            preventDragYMovement(draggable)
 
-                        <div ref={droppable.innerRef} {...droppable.droppableProps} className='flex overflow-auto'>
-
-                            {ptys.map((item, index) => (
-
-                                <Draggable key={item.id} draggableId={item.id} index={index}>
-                                    {(draggable, state) => {
-
-                                        preventDragYMovement(draggable)
-
-                                        return (
-                                            <div
-                                                ref={draggable.innerRef} {...draggable.draggableProps} {...draggable.dragHandleProps}>
-                                                <Tab tab={item} dragging={state.isDragging} />
-                                            </div>
-                                        )
-                                    }}
-                                </Draggable>
-
-                            ))}
+                                            return (
+                                                <div
+                                                    ref={draggable.innerRef}
+                                                    {...draggable.draggableProps}
+                                                    {...draggable.dragHandleProps}
+                                                >
+                                                    <Tab
+                                                        id={pty.id}
+                                                        href={`/terminal/${pty.id}`}
+                                                        title={
+                                                            pty.shell
+                                                                .display_name
+                                                        }
+                                                        icon={pty.shell.icon}
+                                                        onClose={() => {
+                                                            // TODO: handle kill pty
+                                                        }}
+                                                        dragging={
+                                                            state.isDragging
+                                                        }
+                                                    />
+                                                </div>
+                                            )
+                                        }}
+                                    </Draggable>
+                                )
+                            )}
 
                             {droppable.placeholder}
                         </div>
@@ -79,10 +107,8 @@ const Component: FC = () => {
             </DragDropContext>
 
             <OptionsMenu />
-
         </div>
     )
-
 }
 
 export default Component

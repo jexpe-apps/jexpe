@@ -1,34 +1,83 @@
 import useResizeObserver from '@react-hook/resize-observer'
 import { FC, useEffect, useRef } from 'react'
-import { CanvasAddon } from 'xterm-addon-canvas'
 import { FitAddon } from 'xterm-addon-fit'
-import { useTabManager } from 'src/contexts'
 import { WebglAddon } from 'xterm-addon-webgl'
+import { useShell } from 'src/contexts'
+import { Terminal } from 'xterm'
+import { invoke } from '@tauri-apps/api/tauri'
+import { router } from 'next/client'
+import { listen } from '@tauri-apps/api/event'
 
 const Component: FC<{
     id: string
 }> = ({ id }) => {
+    const { ptys, despawnShell } = useShell()
+
     const target = useRef<HTMLDivElement | null>(null)
-
-    const { ptys, writeToPty } = useTabManager()
-
     const fitAddon = new FitAddon()
 
     useEffect(() => {
-        if (target && target.current) {
-            const pty = ptys.find((pty) => pty.id === id)
+        const subscribe = listen<{
+            id: string
+            bytes: Uint8Array
+        }>('pty-stdout', ({ payload: { id, bytes } }) => {
+            const pty = ptys.get(id)
+            if (!pty || !pty.terminal) {
+                return // TODO: handle this
+            }
+
+            console.log('Writing to terminal: ', bytes)
+
+            pty.terminal.write(bytes)
+        })
+
+        if (target.current) {
+            const pty = ptys.get(id)
             if (!pty) {
                 return // TODO: handle this
             }
 
-            pty.terminal.open(target.current)
-            // pty.terminal.loadAddon(new WebglAddon())
-            pty.terminal.loadAddon(new CanvasAddon())
-            pty.terminal.loadAddon(fitAddon)
-            pty.terminal.onData((data) => {
-                writeToPty(id, data)
+            pty.terminal = new Terminal({
+                theme: {
+                    background: '#1A1B1E',
+                },
+                fontFamily: 'Cascadia Mono',
+                fontWeight: 'normal',
+                fontSize: 12,
+                cursorBlink: true,
+                // allowProposedApi: true,
             })
+
+            pty.terminal.open(target.current)
+            pty.terminal.loadAddon(new WebglAddon())
+            // pty.terminal.loadAddon(new CanvasAddon())
+            pty.terminal.loadAddon(fitAddon)
+            pty.terminal.onData((data: string) => {
+                console.log('Writing to pty: ', data)
+                invoke('write_pty', { id, data })
+                // TODO: handle response
+            })
+
             fitAddon.fit()
+
+            invoke<string>('spawn_pty', {
+                id,
+                shell: pty.shell,
+                size: {
+                    cols: pty.terminal.cols,
+                    rows: pty.terminal.rows,
+                    pixel_width: 0,
+                    pixel_height: 0,
+                },
+            }).then(() => {
+                // TODO: Remove pty from context and handle status
+                router.push('/')
+                despawnShell(id)
+            })
+        }
+
+        return () => {
+            subscribe.then((unsubscribe) => unsubscribe())
         }
     }, [])
 

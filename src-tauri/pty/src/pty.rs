@@ -12,16 +12,14 @@ use crate::wait::{ExitStatus, WaitRx};
 
 impl PtyProcess {
     /// Spawns a new simple process
-    pub fn spawn<S, I>(
+    pub fn spawn<S>(
         program: S,
-        args: I,
         environment: Option<Environment>,
         current_dir: Option<PathBuf>,
         size: PtySize,
     ) -> io::Result<Self>
         where
             S: AsRef<OsStr>,
-            I: IntoIterator<Item=S>,
     {
 
         // Establish our new pty for the given size
@@ -34,7 +32,7 @@ impl PtyProcess {
 
         // Spawn our process within the pty
         let mut cmd = CommandBuilder::new(program);
-        cmd.args(args);
+        // cmd.args(args);
 
         if let Some(path) = current_dir {
             cmd.cwd(path);

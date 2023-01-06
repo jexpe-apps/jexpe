@@ -23,9 +23,10 @@ fn main() {
     tauri::Builder::default()
         .manage(JexpeState::new())
         .invoke_handler(tauri::generate_handler![
-            shell::commands::get_os_shells,
-            shell::commands::spawn_shell,
-            shell::commands::write_shell,
+            shell::commands::get_system_shells,
+            shell::commands::spawn_pty,
+            shell::commands::write_pty,
+            shell::commands::kill_pty,
         ])
         .run(tauri::generate_context!())
         .expect("error while running jexpe application");

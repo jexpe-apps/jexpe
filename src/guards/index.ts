@@ -1,1 +1,1 @@
-export { default as LocalVaultGuard } from './local_vault'
+export type test = 'a'
