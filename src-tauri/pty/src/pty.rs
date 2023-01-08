@@ -1,9 +1,9 @@
 use std::ffi::OsStr;
 use std::io;
 use std::path::PathBuf;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, Weak};
 use log::{error, trace};
-use portable_pty::{CommandBuilder, PtySize};
+use portable_pty::{CommandBuilder, MasterPty, PtySize};
 use tokio::sync::mpsc::channel;
 use tokio::time::sleep;
 use crate::{Environment, FutureReturn, InputChannel, OutputChannel, PtyProcess, wait};
@@ -169,6 +169,17 @@ impl PtyProcess {
         self.stdout.take()
     }
 
+    pub fn take_wait(&mut self) -> Option<Box<WaitRx>> {
+        self.wait.take()
+    }
+
+    fn pty_master(&self) -> Weak<Mutex<Box<dyn MasterPty + Send>>> {
+        self.pty_master
+            .as_ref()
+            .map(Arc::downgrade)
+            .unwrap_or_default()
+    }
+
     pub fn kill(&mut self) -> FutureReturn<'_, io::Result<()>> {
         async fn inner(this: &mut PtyProcess) -> io::Result<()> {
             this.kill_tx
@@ -179,30 +190,19 @@ impl PtyProcess {
         Box::pin(inner(self))
     }
 
-    pub fn take_wait(&mut self) -> Option<Box<WaitRx>> {
-        self.wait.take()
-    }
 
-    // pub fn wait(&mut self) -> FutureReturn<'_, io::Result<ExitStatus>> {
-    //     async fn inner(this: &mut PtyProcess) -> io::Result<ExitStatus> {
-    //         let mut status = this.wait.recv().await?;
-    //
-    //         // Drop our master once we have finished
-    //         let _ = this.pty_master.take();
-    //
-    //         if let Some(task) = this.stdin_task.take() {
-    //             task.abort();
-    //         }
-    //         if let Some(task) = this.stdout_task.take() {
-    //             let _ = task.await;
-    //         }
-    //
-    //         if status.success && status.code.is_none() {
-    //             status.code = Some(0);
-    //         }
-    //
-    //         Ok(status)
-    //     }
-    //     Box::pin(inner(self))
-    // }
+    pub fn resize(&mut self, size: PtySize) -> io::Result<()> {
+        if let Some(master) = Weak::upgrade(&self.pty_master()) {
+            master
+                .lock()
+                .unwrap()
+                .resize(size)
+                .map_err(|x| io::Error::new(io::ErrorKind::Other, x))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::BrokenPipe,
+                "Pty master has been dropped",
+            ))
+        }
+    }
 }

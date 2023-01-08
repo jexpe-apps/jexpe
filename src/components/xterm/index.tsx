@@ -39,7 +39,7 @@ const Component: FC<{
 
             pty.terminal = new Terminal({
                 theme: {
-                    background: '#1A1B1E',
+                    background: '#3b3b3b',
                 },
                 fontFamily: 'Cascadia Mono',
                 fontWeight: 'normal',
@@ -49,16 +49,30 @@ const Component: FC<{
             })
 
             pty.terminal.open(target.current)
-            pty.terminal.loadAddon(new WebglAddon())
+            // pty.terminal.loadAddon(new WebglAddon())
             // pty.terminal.loadAddon(new CanvasAddon())
             pty.terminal.loadAddon(fitAddon)
             pty.terminal.onData((data: string) => {
-                console.log('Writing to pty: ', data)
                 invoke('write_pty', { id, data })
                 // TODO: handle response
             })
 
             fitAddon.fit()
+
+            pty.terminal.onResize((event) => {
+
+                console.log('Resizing pty: ', event)
+
+                // invoke('resize_pty', {
+                //     id,
+                //     size: {
+                //         cols,
+                //         rows,
+                //         pixel_width: 0,
+                //         pixel_height: 0,
+                //     },
+                // }).catch(console.error)
+            })
 
             invoke<string>('spawn_pty', {
                 id,
@@ -81,7 +95,10 @@ const Component: FC<{
         }
     }, [])
 
-    useResizeObserver(target, () => fitAddon.fit())
+    useResizeObserver(target, () => {
+        console.log('Resizing terminal')
+        fitAddon.fit()
+    })
 
     return <div ref={target} style={{ height: '100%', width: '100%' }} />
 }

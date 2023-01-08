@@ -1,15 +1,10 @@
-use std::path::PathBuf;
 use std::sync::{Arc};
-
-use cuid::cuid;
 use tauri::{AppHandle, Manager, State};
 use tauri::async_runtime::spawn;
 use tokio::sync::Mutex;
-
 use pty::{PtyProcess, PtySize};
-
 use crate::JexpeState;
-use crate::shell::{SystemShellPayload, PtyStdoutPayload, PtySpawnedPayload};
+use crate::shell::{SystemShellPayload, PtyStdoutPayload};
 
 #[tauri::command]
 pub fn get_system_shells() -> Result<Vec<SystemShellPayload>, String> {
@@ -84,9 +79,6 @@ pub async fn spawn_pty(
     let mut wait = pty.take_wait()
         .ok_or("Failed to take wait from pty".to_string())?;
 
-    let pty_master = pty.pty_master.take()
-        .ok_or("Failed to take master from pty".to_string())?;
-
     let pty_stdin_task = pty.stdin_task.take()
         .ok_or("Failed to take stdin task from pty".to_string())?;
 
@@ -95,6 +87,7 @@ pub async fn spawn_pty(
 
     drop(pty);
 
+    let id_clone = id.clone();
     let stdout_task = spawn(async move {
         while let Ok(data) = stdout.recv().await {
             match data {
@@ -107,7 +100,7 @@ pub async fn spawn_pty(
 
                     app_handle
                         .emit_all("pty-stdout", PtyStdoutPayload {
-                            id: id.clone(),
+                            id: id_clone.clone(),
                             bytes,
                         })
                         .unwrap();
@@ -122,7 +115,16 @@ pub async fn spawn_pty(
     let mut status = wait.recv().await
         .map_err(|_| "Failed to receive status from pty".to_string())?;
 
-    drop(pty_master);
+    {
+        let mut ptys = state.ptys.lock().await;
+        let mut pty = ptys.get_mut(&id)
+            .ok_or("Pty not found".to_string())?
+            .lock()
+            .await;
+
+        let _ = pty.pty_master.take()
+            .ok_or("Failed to take master from pty".to_string())?;
+    }
 
     pty_stdin_task.abort();
     let _ = pty_stdout_task.await;
@@ -175,6 +177,25 @@ pub async fn kill_pty(
     pty.kill()
         .await
         .map_err(|_| "Failed to kill pty".to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn resize_pty(
+    state: State<'_, JexpeState>,
+    id: String,
+    size: PtySize,
+) -> Result<(), String> {
+    let mut ptys = state.ptys.lock().await;
+
+    let mut pty = ptys.get_mut(&id)
+        .ok_or("Pty not found".to_string())?
+        .lock()
+        .await;
+
+    pty.resize(size)
+        .map_err(|x| x.to_string())?;
 
     Ok(())
 }
