@@ -41,15 +41,15 @@ const Component: FC<{
                 theme: {
                     background: '#1A1B1E',
                 },
-                fontFamily: 'Cascadia Mono',
+                fontFamily: 'MesloLGS NF',
                 fontWeight: 'normal',
-                fontSize: 12,
+                fontSize: 14,
                 cursorBlink: true,
                 // allowProposedApi: true,
             })
 
             pty.terminal.open(target.current)
-            pty.terminal.loadAddon(new WebglAddon())
+            // pty.terminal.loadAddon(new WebglAddon())
             // pty.terminal.loadAddon(new CanvasAddon())
             pty.terminal.loadAddon(fitAddon)
             pty.terminal.onData((data: string) => {

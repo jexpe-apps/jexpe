@@ -1,5 +1,5 @@
-@tailwind base;
-@tailwind components;
+/* @tailwind base;
+@tailwind components; */
 @tailwind utilities;
 
 html,
@@ -15,6 +15,7 @@ body {
     @apply text-dark-50;
 }
 
-img, a {
+img,
+a {
     -webkit-user-drag: none;
 }

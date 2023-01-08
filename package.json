@@ -21,6 +21,7 @@
     "@hello-pangea/dnd": "^16.2.0",
     "@react-hook/resize-observer": "^1.2.6",
     "@tauri-apps/api": "^1.2.0",
+    "antd": "^5.1.2",
     "cuid": "^2.1.8",
     "jotai": "^1.12.0",
     "lodash": "^4.17.21",
