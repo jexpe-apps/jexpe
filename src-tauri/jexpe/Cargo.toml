@@ -15,6 +15,9 @@ serde_json = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = ["api-all"] }
 pty = { path = "../pty" }
+tokio = { version = "1.23.0", features = ["macros", "rt", "sync", "time"] }
+cuid = { version = "1.2.0" }
+window-vibrancy = { version = "0.3.2" }
 
 [features]
 # by default Tauri runs in production mode

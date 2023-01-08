@@ -1,52 +1,40 @@
 import { NextPage } from 'next'
 import { AppProps } from 'next/app'
 import { FC, ReactElement, ReactNode } from 'react'
+import type { Terminal } from 'xterm'
 
 export type LayoutFC = (page: ReactElement) => ReactNode
 
-export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
-    getLayout?: LayoutFC,
-    protectedRoute?: boolean,
-};
+export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {
+    getLayout?: LayoutFC
+    protectedRoute?: boolean
+}
 
 export type AppPropsWithLayout = AppProps & {
-    Component: NextPageWithLayout,
-};
+    Component: NextPageWithLayout
+}
 
-export type FCWithChildren<V = {}> = FC<{ children?: ReactNode } & V>
+export type FCWithChildren<V = object> = FC<{ children?: ReactNode } & V>
 
 export type Maybe<T> = T | undefined
 export type Nullable<T> = T | null
 
-export interface IVault {
-    id: string,
-    display_name: string,
-    description?: string,
-    groups: IVaultGroup[],
-    hosts: IVaultHost[],
+export interface ISystemShell {
+    display_name: string
+    icon: string
+    command: string
+    directory: string
 }
 
-export interface IVaultGroup {
-    id: string,
-    parent?: string,
-    display_name: string,
+export interface IPtySize {
+    rows: number
+    cols: number
+    pixel_width: number
+    pixel_height: number
 }
 
-export interface IVaultHost {
-    id: string,
-    parent?: string,
-    display_name: string,
-    hostname: string,
-    services: IVaultHostService[],
+export interface IPty {
+    id: string
+    shell: ISystemShell
+    terminal?: Terminal
 }
-
-export interface IVaultHostService {
-    port: number,
-    username: string,
-    password?: string,
-    id_rsa?: string,
-}
-
-export interface ITab {
-}
-

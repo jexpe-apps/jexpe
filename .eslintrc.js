@@ -15,4 +15,9 @@ module.exports = {
         'prettier',
     ],
     root: true,
+    rules: {
+        '@typescript-eslint/no-floating-promises': 'off',
+        '@typescript-eslint/prefer-optional-chain': 'off',
+        'react-hooks/exhaustive-deps': 'off',
+    },
 }
