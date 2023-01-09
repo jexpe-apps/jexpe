@@ -37,10 +37,7 @@ const Component: FC<{
                 }
             >
                 <Typography.Text className="flex-grow w-0" ellipsis>
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                    Hic repudiandae sunt dolor saepe assumenda aspernatur animi
-                    quod in quasi quis nemo quia culpa corrupti molestiae, quo
-                    officiis! Fugiat, facere dolor!
+                    {title}
                 </Typography.Text>
 
                 <Button type="text" size="small">
