@@ -41,7 +41,7 @@ const Component: FC<{
                 theme: {
                     background: '#1A1B1E',
                 },
-                fontFamily: 'MesloLGS NF',
+                fontFamily: 'Cascadia Mono, MesloLGS NF',
                 fontWeight: 'normal',
                 fontSize: 14,
                 cursorBlink: true,
