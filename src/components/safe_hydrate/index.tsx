@@ -2,9 +2,9 @@ import { FCWithChildren } from 'src/types'
 
 const Component: FCWithChildren = ({ children }) => {
     return (
-        <>
-            {children}
-        </>
+        <div suppressHydrationWarning>
+            {typeof window === 'undefined' ? null : children}
+        </div>
     )
 }
 
