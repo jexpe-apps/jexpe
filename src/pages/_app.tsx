@@ -21,12 +21,11 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
                     colorInfo: '#1c7ed6',
                     fontSize: 14,
                     wireframe: true,
+                    colorBgBase: '#1a1b1e',
                 },
             }}
         >
-            <SafeHydrate>
-                {getLayout(<Component {...pageProps} />)}
-            </SafeHydrate>
+            {getLayout(<Component {...pageProps} />)}
         </ConfigProvider>
     )
 }

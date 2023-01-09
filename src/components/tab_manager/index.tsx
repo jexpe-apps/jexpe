@@ -9,10 +9,12 @@ import {
 import { HomeButton, OptionsMenu, Tab } from './components'
 import { useShell } from 'src/contexts'
 import { IPty } from 'src/types'
+import { invoke } from '@tauri-apps/api/tauri'
+import { Button, theme } from 'antd'
 
 const Component: FC = () => {
     const { ptys } = useShell()
-
+    const { token } = theme.useToken()
     // a little function to help us with reordering the result
     // const reorder = (list: any, startIndex: any, endIndex: any) => {
     //     const result = Array.from(list)
@@ -51,62 +53,87 @@ const Component: FC = () => {
     }
 
     return (
-        <div className="flex items-center p-2">
-            <HomeButton />
+        <div
+            className="flex items-center justify-between gap-x-2"
+            style={{
+                padding: token.paddingXS,
+            }}
+        >
+            <div>
+                <HomeButton />
+            </div>
+            <div className="w-full h-full overflow-hidden">
+                <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="droppable" direction="horizontal">
+                        {(droppable) => (
+                            <div
+                                ref={droppable.innerRef}
+                                {...droppable.droppableProps}
+                                className="flex gap-x-2 h-full"
+                            >
+                                {Array.from(ptys.values()).map(
+                                    (pty: IPty, index) => (
+                                        <Draggable
+                                            key={pty.id}
+                                            draggableId={pty.id}
+                                            index={index}
+                                        >
+                                            {(draggable, state) => {
+                                                preventDragYMovement(draggable)
 
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="droppable" direction="horizontal">
-                    {(droppable) => (
-                        <div
-                            ref={droppable.innerRef}
-                            {...droppable.droppableProps}
-                            className="flex overflow-auto"
-                        >
-                            {Array.from(ptys.values()).map(
-                                (pty: IPty, index) => (
-                                    <Draggable
-                                        key={pty.id}
-                                        draggableId={pty.id}
-                                        index={index}
-                                    >
-                                        {(draggable, state) => {
-                                            preventDragYMovement(draggable)
+                                                return (
+                                                    <div
+                                                        ref={draggable.innerRef}
+                                                        {...draggable.draggableProps}
+                                                        {...draggable.dragHandleProps}
+                                                        className="w-full"
+                                                    >
+                                                        <Tab
+                                                            id={pty.id}
+                                                            href={`/terminal/${pty.id}`}
+                                                            title={
+                                                                pty.shell
+                                                                    .display_name
+                                                            }
+                                                            icon={
+                                                                pty.shell.icon
+                                                            }
+                                                            onClose={() => {
+                                                                // TODO: handle kill pty
+                                                                try {
+                                                                    invoke(
+                                                                        'kill_pty',
+                                                                        {
+                                                                            id: pty.id,
+                                                                        }
+                                                                    )
+                                                                } catch (e) {
+                                                                    console.log(
+                                                                        e
+                                                                    )
+                                                                }
+                                                            }}
+                                                            dragging={
+                                                                state.isDragging
+                                                            }
+                                                        />
+                                                    </div>
+                                                )
+                                            }}
+                                        </Draggable>
+                                    )
+                                )}
 
-                                            return (
-                                                <div
-                                                    ref={draggable.innerRef}
-                                                    {...draggable.draggableProps}
-                                                    {...draggable.dragHandleProps}
-                                                >
-                                                    <Tab
-                                                        id={pty.id}
-                                                        href={`/terminal/${pty.id}`}
-                                                        title={
-                                                            pty.shell
-                                                                .display_name
-                                                        }
-                                                        icon={pty.shell.icon}
-                                                        onClose={() => {
-                                                            // TODO: handle kill pty
-                                                        }}
-                                                        dragging={
-                                                            state.isDragging
-                                                        }
-                                                    />
-                                                </div>
-                                            )
-                                        }}
-                                    </Draggable>
-                                )
-                            )}
+                                {droppable.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+            </div>
 
-                            {droppable.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
-
-            <OptionsMenu />
+            <div>
+                <OptionsMenu />
+            </div>
         </div>
     )
 }

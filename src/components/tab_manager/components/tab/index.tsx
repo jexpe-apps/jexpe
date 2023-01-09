@@ -1,7 +1,10 @@
-import React, { FC } from 'react'
+import React, { FC, useMemo } from 'react'
 import { X } from 'phosphor-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { Button, theme, Typography } from 'antd'
+import { useRouter } from 'next/router'
+import { Center } from 'src/components'
 
 const Component: FC<{
     id: string
@@ -11,21 +14,39 @@ const Component: FC<{
     onClose: (id: string) => void
     dragging?: boolean
 }> = ({ id, href, title, icon, onClose, dragging }) => {
-    return (
-        <Link
-            href={href}
-            className={`flex mr-2 items-center border border-dark-500 py-1 px-2 justify-between rounded w-[256px] ${
-                dragging ? 'shadow border-dark-300 bg-dark-500' : 'bg-dark-700'
-            }`}
-        >
-            <div className="flex items-center gap-2">
-                <Image src={icon} alt="icon" width={16} height={16} />
-                <p className="text-xs">{title}</p>
-            </div>
+    const { token } = theme.useToken()
+    const router = useRouter()
+    const active = useMemo(
+        () => router.asPath === `/terminal/${id}`,
+        [router.asPath]
+    )
 
-            <button className="p-1 hover:bg-dark-500 hover:text-brand-red rounded flex items-center justify-center">
-                <X onClick={() => onClose(id)} size={12} />
-            </button>
+    return (
+        <Link href={href}>
+            <Button
+                className="flex w-full h-full items-center px-2"
+                style={{
+                    backgroundColor: active
+                        ? token.colorBgSpotlight
+                        : undefined,
+                }}
+                icon={
+                    <Center>
+                        <Image src={icon} alt="icon" width={16} height={16} />
+                    </Center>
+                }
+            >
+                <Typography.Text className="flex-grow w-0" ellipsis>
+                    Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                    Hic repudiandae sunt dolor saepe assumenda aspernatur animi
+                    quod in quasi quis nemo quia culpa corrupti molestiae, quo
+                    officiis! Fugiat, facere dolor!
+                </Typography.Text>
+
+                <Button type="text" size="small">
+                    <X onClick={() => onClose(id)} size={12} />
+                </Button>
+            </Button>
         </Link>
     )
 }
