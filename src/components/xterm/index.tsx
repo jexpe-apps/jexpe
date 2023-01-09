@@ -7,6 +7,7 @@ import { Terminal } from 'xterm'
 import { invoke } from '@tauri-apps/api/tauri'
 import { router } from 'next/client'
 import { listen } from '@tauri-apps/api/event'
+import dynamic from 'next/dynamic'
 
 const Component: FC<{
     id: string
@@ -104,3 +105,4 @@ const Component: FC<{
 }
 
 export default Component
+// export default dynamic(() => Promise.resolve(Component), { ssr: false })

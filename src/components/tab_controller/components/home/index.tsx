@@ -10,11 +10,16 @@ const Component: FC = () => {
     const isActive = useMemo(() => router.pathname === '/', [router.pathname])
 
     return (
-        <Button>
-            <Center>
-                <House size={16} weight="duotone" />
-            </Center>
-        </Button>
+        <Link href='/'>
+            <Button
+                type={isActive ? 'primary' : 'default'}
+                ghost={isActive}
+            >
+                <Center>
+                    <House size={16} weight='duotone' />
+                </Center>
+            </Button>
+        </Link>
     )
 }
 

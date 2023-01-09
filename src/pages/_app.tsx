@@ -4,7 +4,6 @@ import 'src/globals.css'
 import { DefaultLayout } from 'src/layouts'
 import { AppPropsWithLayout } from 'src/types'
 import { ConfigProvider, theme } from 'antd'
-import { SafeHydrate } from 'src/components'
 
 const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
     const getLayout = Component.getLayout ?? DefaultLayout
