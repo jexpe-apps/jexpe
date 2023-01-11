@@ -7,6 +7,7 @@ import { Terminal } from 'xterm'
 import { invoke } from '@tauri-apps/api/tauri'
 import { router } from 'next/client'
 import { listen } from '@tauri-apps/api/event'
+import dynamic from 'next/dynamic'
 
 const Component: FC<{
     id: string
@@ -39,11 +40,11 @@ const Component: FC<{
 
             pty.terminal = new Terminal({
                 theme: {
-                    background: '#3b3b3b',
+                    background: '#1A1B1E',
                 },
-                fontFamily: 'Cascadia Mono',
+                fontFamily: 'Cascadia Mono, MesloLGS NF',
                 fontWeight: 'normal',
-                fontSize: 12,
+                fontSize: 14,
                 cursorBlink: true,
                 // allowProposedApi: true,
             })
@@ -104,3 +105,4 @@ const Component: FC<{
 }
 
 export default Component
+// export default dynamic(() => Promise.resolve(Component), { ssr: false })

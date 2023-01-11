@@ -1,10 +1,12 @@
+import { Typography } from 'antd'
+import { Flex } from 'src/components'
 import { NextPageWithLayout } from 'src/types'
 
 const Page: NextPageWithLayout = () => {
     return (
-        <div className="p-5 h-full flex flex-col gap-5">
-            <h1 className="text-3xl font-bold">Homepage</h1>
-        </div>
+        <Flex className='h-full w-full bg-dark-600'>
+            <Typography.Title>Homepage</Typography.Title>
+        </Flex>
     )
 }
 

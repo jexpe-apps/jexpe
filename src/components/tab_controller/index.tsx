@@ -6,12 +6,18 @@ import {
     Droppable,
     OnDragEndResponder,
 } from '@hello-pangea/dnd'
-import { HomeButton, OptionsMenu, Tab } from './components'
 import { useShell } from 'src/contexts'
-import { IPty } from 'src/types'
+import { Center, Flex } from 'src/components'
+import { theme } from 'antd'
+
+import { HomeButton, Tab, OptionsMenu } from './components'
+import Image from 'next/image'
 
 const Component: FC = () => {
     const { ptys } = useShell()
+    const {
+        token: { paddingXS },
+    } = theme.useToken()
 
     // a little function to help us with reordering the result
     // const reorder = (list: any, startIndex: any, endIndex: any) => {
@@ -51,46 +57,64 @@ const Component: FC = () => {
     }
 
     return (
-        <div className="flex items-center p-2">
+        <Flex
+            className="gap-2"
+            justify="space-between"
+            style={{ padding: paddingXS }}
+        >
             <HomeButton />
 
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="droppable" direction="horizontal">
                     {(droppable) => (
                         <div
+                            className="flex w-full gap-2"
                             ref={droppable.innerRef}
                             {...droppable.droppableProps}
-                            className="flex overflow-auto"
                         >
-                            {Array.from(ptys.values()).map(
-                                (pty: IPty, index) => (
+                            {Array.from(ptys.entries()).map(
+                                ([id, pty], index) => (
                                     <Draggable
-                                        key={pty.id}
-                                        draggableId={pty.id}
+                                        key={index}
+                                        draggableId={id}
                                         index={index}
                                     >
-                                        {(draggable, state) => {
+                                        {(draggable, snapshot) => {
                                             preventDragYMovement(draggable)
 
                                             return (
                                                 <div
+                                                    className={`flex flex-grow ${
+                                                        snapshot.isDragging
+                                                            ? 'z-50'
+                                                            : 'z-0'
+                                                    }`}
                                                     ref={draggable.innerRef}
                                                     {...draggable.draggableProps}
                                                     {...draggable.dragHandleProps}
                                                 >
                                                     <Tab
-                                                        id={pty.id}
-                                                        href={`/terminal/${pty.id}`}
-                                                        title={
+                                                        href={'/terminal/' + id}
+                                                        label={
                                                             pty.shell
                                                                 .display_name
                                                         }
-                                                        icon={pty.shell.icon}
-                                                        onClose={() => {
-                                                            // TODO: handle kill pty
-                                                        }}
+                                                        icon={
+                                                            <Center>
+                                                                <Image
+                                                                    src={
+                                                                        pty
+                                                                            .shell
+                                                                            .icon
+                                                                    }
+                                                                    alt="pty-icon"
+                                                                    width={16}
+                                                                    height={16}
+                                                                />
+                                                            </Center>
+                                                        }
                                                         dragging={
-                                                            state.isDragging
+                                                            snapshot.isDragging
                                                         }
                                                     />
                                                 </div>
@@ -99,15 +123,13 @@ const Component: FC = () => {
                                     </Draggable>
                                 )
                             )}
-
-                            {droppable.placeholder}
                         </div>
                     )}
                 </Droppable>
             </DragDropContext>
 
             <OptionsMenu />
-        </div>
+        </Flex>
     )
 }
 

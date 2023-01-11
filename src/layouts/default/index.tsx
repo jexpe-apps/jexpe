@@ -1,15 +1,13 @@
 import { LayoutFC } from 'src/types'
-import { TabManager } from 'src/components'
+import { Flex, TabController } from 'src/components'
 
 const Layout: LayoutFC = (page) => {
-
     return (
-        <div className='h-screen w-screen flex flex-col'>
-            <TabManager />
+        <Flex className='h-screen w-screen' direction='column'>
+            <TabController />
             {page}
-        </div>
+        </Flex>
     )
-
 }
 
 export default Layout
