@@ -5,6 +5,7 @@ use tokio::sync::{Mutex};
 
 use pty::{PtyProcess};
 
+mod beta_pty;
 mod shell;
 
 use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial};
