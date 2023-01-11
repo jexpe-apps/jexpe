@@ -50,7 +50,11 @@ _Please note that this is not the final roadmap and what you see can be updated 
 
 **[ ⛳ ] - WORKING LOCAL SHELL**
 
-> Let's start with basic functionality. The user must have the ability to: . Choose which of the shells available on his or her operating system to start. . Have multiple shells open at the same time . Manage through a horizontal navigation bar similar to Chrome's, all open shells
+> Let's start with basic functionality. The user must have the ability to:
+> 
+> -   Choose which of the shells available on his or her operating system to start.
+> -   Have multiple shells open at the same time
+> -   Manage through a horizontal navigation bar similar to Chrome's, all open shells
 
 **[ ⛳ ] - 50 STARS ON GITHUB**
 
