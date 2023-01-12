@@ -1,1 +1,1 @@
-export { default as useShell } from './shell'
+export { PtyContextProvider, usePty } from './pty'

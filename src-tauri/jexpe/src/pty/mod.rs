@@ -2,6 +2,7 @@ use portable_pty::MasterPty;
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::Sender;
 use tokio::task::JoinHandle;
+use crate::shell::SystemShell;
 
 mod constants;
 pub mod commands;
@@ -21,7 +22,8 @@ struct PtyExitPayload {
 
 #[derive(Serialize, Deserialize, Clone)]
 struct PtySpawnPayload {
-    id: String
+    id: String,
+    shell: SystemShell,
 }
 
 pub struct PtyProcess {

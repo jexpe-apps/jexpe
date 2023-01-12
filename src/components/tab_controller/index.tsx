@@ -6,18 +6,15 @@ import {
     Droppable,
     OnDragEndResponder,
 } from '@hello-pangea/dnd'
-import { useShell } from 'src/contexts'
 import { Center, Flex } from 'src/components'
 import { theme } from 'antd'
-
 import { HomeButton, Tab, OptionsMenu } from './components'
 import Image from 'next/image'
+import { usePty } from 'src/contexts'
 
 const Component: FC = () => {
-    const { ptys } = useShell()
-    const {
-        token: { paddingXS },
-    } = theme.useToken()
+    const { ptys } = usePty()
+    const { token: { paddingXS } } = theme.useToken()
 
     // a little function to help us with reordering the result
     // const reorder = (list: any, startIndex: any, endIndex: any) => {
@@ -58,79 +55,62 @@ const Component: FC = () => {
 
     return (
         <Flex
-            className="gap-2"
-            justify="space-between"
+            className='gap-2'
+            justify='space-between'
             style={{ padding: paddingXS }}
         >
             <HomeButton />
 
             <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="droppable" direction="horizontal">
+                <Droppable droppableId='droppable' direction='horizontal'>
                     {(droppable) => {
                         return (
                             <div
-                                className="flex w-full gap-2"
+                                className='flex w-full gap-2'
                                 ref={droppable.innerRef}
                                 {...droppable.droppableProps}
                             >
-                                {Array.from(ptys.entries()).map(
-                                    ([id, pty], index) => (
-                                        <Draggable
-                                            key={index}
-                                            draggableId={id}
-                                            index={index}
-                                        >
-                                            {(draggable, snapshot) => {
-                                                preventDragYMovement(draggable)
+                                {ptys.map((pty, index) => (
+                                    <Draggable
+                                        key={index}
+                                        draggableId={`draggable-${index}`}
+                                        index={index}
+                                    >
+                                        {(draggable, snapshot) => {
+                                            preventDragYMovement(draggable)
 
-                                                return (
-                                                    <div
-                                                        className={`flex flex-grow ${
-                                                            snapshot.isDragging
-                                                                ? 'z-50'
-                                                                : 'z-0'
-                                                        }`}
-                                                        ref={draggable.innerRef}
-                                                        {...draggable.draggableProps}
-                                                        {...draggable.dragHandleProps}
-                                                    >
-                                                        <Tab
-                                                            href={
-                                                                '/terminal/' +
-                                                                id
-                                                            }
-                                                            label={
-                                                                pty.shell
-                                                                    .display_name
-                                                            }
-                                                            icon={
-                                                                <Center>
-                                                                    <Image
-                                                                        src={
-                                                                            pty
-                                                                                .shell
-                                                                                .icon
-                                                                        }
-                                                                        alt="pty-icon"
-                                                                        width={
-                                                                            16
-                                                                        }
-                                                                        height={
-                                                                            16
-                                                                        }
-                                                                    />
-                                                                </Center>
-                                                            }
-                                                            dragging={
-                                                                snapshot.isDragging
-                                                            }
-                                                        />
-                                                    </div>
-                                                )
-                                            }}
-                                        </Draggable>
-                                    )
-                                )}
+                                            return (
+                                                <div
+                                                    className={`flex flex-grow ${
+                                                        snapshot.isDragging
+                                                            ? 'z-50'
+                                                            : 'z-0'
+                                                    }`}
+                                                    ref={draggable.innerRef}
+                                                    {...draggable.draggableProps}
+                                                    {...draggable.dragHandleProps}
+                                                >
+                                                    <Tab
+                                                        href='/terminal'
+                                                        label={pty.shell.display_name}
+                                                        icon={
+                                                            <Center>
+                                                                <Image
+                                                                    src={pty.shell.icon}
+                                                                    alt='pty-icon'
+                                                                    width={16}
+                                                                    height={16}
+                                                                />
+                                                            </Center>
+                                                        }
+                                                        dragging={snapshot.isDragging}
+                                                    />
+                                                </div>
+                                            )
+                                        }}
+                                    </Draggable>
+                                ))}
+                                {droppable.placeholder}
                             </div>
                         )
                     }}

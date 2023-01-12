@@ -4,6 +4,7 @@ import 'src/globals.css'
 import { DefaultLayout } from 'src/layouts'
 import { AppPropsWithLayout } from 'src/types'
 import { ConfigProvider, theme } from 'antd'
+import { PtyContextProvider } from 'src/contexts'
 
 const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
     const getLayout = Component.getLayout ?? DefaultLayout
@@ -24,7 +25,9 @@ const MyApp = ({ Component, pageProps }: AppPropsWithLayout) => {
                 },
             }}
         >
-            {getLayout(<Component {...pageProps} />)}
+            <PtyContextProvider>
+                {getLayout(<Component {...pageProps} />)}
+            </PtyContextProvider>
         </ConfigProvider>
     )
 }

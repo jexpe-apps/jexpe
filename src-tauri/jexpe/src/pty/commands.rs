@@ -27,10 +27,10 @@ pub async fn spawn_pty(
     let pty_slave = pty_pair.slave;
 
     // Spawn our process within the pty
-    let mut cmd = CommandBuilder::new(shell.command);
+    let mut cmd = CommandBuilder::new(shell.command.clone());
     // cmd.args(args);
 
-    cmd.cwd(shell.directory);
+    cmd.cwd(shell.directory.clone());
 
     // if let Some(environment) = environment {
     //     for (key, value) in environment {
@@ -100,7 +100,8 @@ pub async fn spawn_pty(
 
         app_handle
             .emit_all("pty-spawn", PtySpawnPayload {
-                id: id.clone()
+                id: id.clone(),
+                shell: shell.clone(),
             })
             .unwrap();
     }

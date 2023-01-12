@@ -4,4 +4,4 @@ export { default as Flex } from './flex'
 export { default as Center } from './center'
 export { default as TabController } from './tab_controller'
 
-export const DynamicTerminal = dynamic(() => import('./xterm'), { ssr: false })
+export const XTerm = dynamic(() => import('./xterm'), { ssr: false })
