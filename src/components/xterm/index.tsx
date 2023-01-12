@@ -17,11 +17,22 @@ const Component: FC<{
     const target = useRef<HTMLDivElement | null>(null)
     const fitAddon = new FitAddon()
 
+    const vID = useRef<string>('')
+
     useEffect(() => {
-        const subscribe = listen<{
+
+        const subscribev0 = listen<string>('pty-spawn', ({ payload }) => {
+            console.log('Spawned pty: ', payload)
+            vID.current = payload
+        })
+
+        const subscribev1 = listen<{
             id: string
             bytes: Uint8Array
         }>('pty-stdout', ({ payload: { id, bytes } }) => {
+
+            console.log('Received stdout: ', id, bytes)
+
             const pty = ptys.get(id)
             if (!pty || !pty.terminal) {
                 return // TODO: handle this
@@ -30,6 +41,14 @@ const Component: FC<{
             console.log('Writing to terminal: ', bytes)
 
             pty.terminal.write(bytes)
+        })
+
+        const subscribev2 = listen<{
+            id: string,
+            success: boolean,
+            code?: number,
+        }>('pty-exit', ({ payload }) => {
+            console.log('Exited pty: ', payload)
         })
 
         if (target.current) {
@@ -54,7 +73,8 @@ const Component: FC<{
             // pty.terminal.loadAddon(new CanvasAddon())
             pty.terminal.loadAddon(fitAddon)
             pty.terminal.onData((data: string) => {
-                invoke('write_pty', { id, data })
+                console.log('Sending data to pty: ', vID)
+                invoke('beta_write_pty', { id: vID.current, data })
                 // TODO: handle response
             })
 
@@ -75,24 +95,22 @@ const Component: FC<{
                 // }).catch(console.error)
             })
 
-            invoke<string>('spawn_pty', {
+            invoke<string>('beta_spawn_pty', {
                 id,
                 shell: pty.shell,
-                size: {
-                    cols: pty.terminal.cols,
-                    rows: pty.terminal.rows,
-                    pixel_width: 0,
-                    pixel_height: 0,
-                },
-            }).then(() => {
-                // TODO: Remove pty from context and handle status
-                router.push('/')
-                despawnShell(id)
-            })
+                // size: {
+                //     cols: pty.terminal.cols,
+                //     rows: pty.terminal.rows,
+                //     pixel_width: 0,
+                //     pixel_height: 0,
+                // },
+            }).catch(console.error)
         }
 
         return () => {
-            subscribe.then((unsubscribe) => unsubscribe())
+            subscribev0.then((unsubscribe) => unsubscribe())
+            subscribev1.then((unsubscribe) => unsubscribe())
+            subscribev2.then((unsubscribe) => unsubscribe())
         }
     }, [])
 
