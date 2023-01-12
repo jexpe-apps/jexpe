@@ -10,8 +10,8 @@ struct PtyStdoutPayload {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SystemShell {
-    display_name: String,
-    icon: String,
-    command: String,
-    directory: String,
+    pub display_name: String,
+    pub icon: String,
+    pub command: String,
+    pub directory: String,
 }

@@ -5,11 +5,12 @@ use tokio::sync::mpsc::channel;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
 use crate::JexpeState;
-use crate::beta_pty::{LocalPtyProcess, PtyExitPayload, PtyStdoutPayload, SystemShell};
-use crate::beta_pty::constants::{MAX_PIPE_CHUNK_SIZE, READ_PAUSE_DURATION};
+use crate::pty::{PtyProcess, PtyExitPayload, PtyStdoutPayload};
+use crate::pty::constants::{MAX_PIPE_CHUNK_SIZE, READ_PAUSE_DURATION};
+use crate::shell::SystemShell;
 
 #[tauri::command]
-pub async fn beta_spawn_pty(
+pub async fn spawn_pty(
     app_handle: AppHandle,
     state: State<'_, JexpeState>,
     shell: SystemShell,
@@ -87,8 +88,8 @@ pub async fn beta_spawn_pty(
 
     // Update the state with the new pty process
     {
-        let mut ptys = state.beta_ptys.lock().await;
-        ptys.insert(id.clone(), LocalPtyProcess {
+        let mut ptys = state.ptys.lock().await;
+        ptys.insert(id.clone(), PtyProcess {
             id: id.clone(),
             pty_master,
             stdin_tx,
@@ -141,38 +142,77 @@ pub async fn beta_spawn_pty(
         }
     }
 
-    let mut ptys = state.beta_ptys.lock().await;
+    let mut ptys = state.ptys.lock().await;
     if let Some(pty) = ptys.remove(&id) {
 
         // Need to drop the stdin_tx to avoid deadlock when waiting on stdin_task
         drop(pty.stdin_tx);
+        println!("stdin_tx dropped");
 
         // Need to drop the kill_tx to drop also the kill_rx
         drop(pty.kill_tx);
+        println!("kill_tx dropped");
 
         // Need to drop the pty_master to close out file handles and avoid deadlock when waiting on stdout_task
         drop(pty.pty_master);
+        println!("pty_master dropped");
 
         pty.stdin_task.await.unwrap();
+        println!("stdin_task finished");
+
         pty.stdout_task.await.unwrap();
+        println!("stdout_task finished");
     }
 
     Ok(())
 }
 
 #[tauri::command]
-pub async fn beta_write_pty(
-    app_handle: AppHandle,
+pub async fn write_pty(
     state: State<'_, JexpeState>,
     id: String,
     data: String,
 ) -> Result<(), String> {
-    let mut ptys = state.beta_ptys.lock().await;
+    let mut ptys = state.ptys.lock().await;
 
-    let mut pty = ptys.get_mut(&id)
+    let pty = ptys.get_mut(&id)
         .ok_or("The specified ID is not associated with any pty.")?;
 
     pty.stdin_tx.send(data.into_bytes())
+        .await
+        .map_err(|x| x.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn resize_pty(
+    state: State<'_, JexpeState>,
+    id: String,
+    size: PtySize,
+) -> Result<(), String> {
+    let ptys = state.ptys.lock().await;
+
+    let pty = ptys.get(&id)
+        .ok_or("The specified ID is not associated with any pty.")?;
+
+    pty.pty_master.resize(size)
+        .map_err(|x| x.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn kill_pty(
+    state: State<'_, JexpeState>,
+    id: String,
+) -> Result<(), String> {
+    let mut ptys = state.ptys.lock().await;
+
+    let pty = ptys.get_mut(&id)
+        .ok_or("The specified ID is not associated with any pty.")?;
+
+    pty.kill_tx.send(())
         .await
         .map_err(|x| x.to_string())?;
 

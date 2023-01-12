@@ -1,38 +1,34 @@
 use std::collections::HashMap;
-use std::sync::Arc;
+use tauri::Builder;
 use tokio::sync::{Mutex};
 
-use pty::{PtyProcess};
-use crate::beta_pty::LocalPtyProcess;
+use crate::pty::PtyProcess;
 
-mod beta_pty;
+mod pty;
 mod shell;
 
 pub struct JexpeState {
-    beta_ptys: Mutex<HashMap<String, LocalPtyProcess>>,
-    ptys: Mutex<HashMap<String, Arc<Mutex<PtyProcess>>>>,
+    ptys: Mutex<HashMap<String, PtyProcess>>,
 }
 
 impl JexpeState {
     fn new() -> Self {
         Self {
             ptys: Mutex::new(HashMap::new()),
-            beta_ptys: Mutex::new(HashMap::new()),
         }
     }
 }
 
+
 fn main() {
-    tauri::Builder::default()
+    Builder::default()
         .manage(JexpeState::new())
         .invoke_handler(tauri::generate_handler![
             shell::commands::get_system_shells,
-            shell::commands::spawn_pty,
-            shell::commands::write_pty,
-            shell::commands::kill_pty,
-            shell::commands::resize_pty,
-            beta_pty::commands::beta_spawn_pty,
-            beta_pty::commands::beta_write_pty,
+            pty::commands::spawn_pty,
+            pty::commands::write_pty,
+            pty::commands::resize_pty,
+            pty::commands::kill_pty,
         ])
         .run(tauri::generate_context!())
         .expect("error while running jexpe application");

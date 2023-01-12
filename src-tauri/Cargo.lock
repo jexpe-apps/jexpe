@@ -1192,7 +1192,6 @@ version = "0.0.1"
 dependencies = [
  "cuid",
  "portable-pty",
- "pty",
  "serde",
  "serde_json",
  "tauri",
@@ -1831,15 +1830,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57a8eca9f9c4ffde41714334dee777596264c7825420f521abc92b5b5deb63a5"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "pty"
-version = "0.1.0"
-dependencies = [
- "log",
- "portable-pty",
- "tokio",
 ]
 
 [[package]]

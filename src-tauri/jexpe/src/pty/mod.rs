@@ -19,15 +19,7 @@ struct PtyExitPayload {
     code: Option<u32>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct SystemShell {
-    display_name: String,
-    icon: String,
-    command: String,
-    directory: String,
-}
-
-pub struct LocalPtyProcess {
+pub struct PtyProcess {
     id: String,
     pty_master: Box<dyn MasterPty + Send>,
     stdin_tx: Sender<Vec<u8>>,
