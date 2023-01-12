@@ -5,9 +5,9 @@ use tokio::sync::mpsc::channel;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
 use crate::JexpeState;
-use crate::pty::{PtyProcess, PtyExitPayload, PtyStdoutPayload};
-use crate::pty::constants::{MAX_PIPE_CHUNK_SIZE, READ_PAUSE_DURATION};
 use crate::shell::SystemShell;
+use super::{PtyProcess, PtyExitPayload, PtyStdoutPayload, PtySpawnPayload};
+use super::constants::{MAX_PIPE_CHUNK_SIZE, READ_PAUSE_DURATION};
 
 #[tauri::command]
 pub async fn spawn_pty(
@@ -99,7 +99,9 @@ pub async fn spawn_pty(
         });
 
         app_handle
-            .emit_all("pty-spawn", id.clone())
+            .emit_all("pty-spawn", PtySpawnPayload {
+                id: id.clone()
+            })
             .unwrap();
     }
 

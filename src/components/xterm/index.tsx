@@ -20,17 +20,18 @@ const Component: FC<{
     const vID = useRef<string>('')
 
     useEffect(() => {
-
-        const subscribev0 = listen<string>('pty-spawn', ({ payload }) => {
-            console.log('Spawned pty: ', payload)
-            vID.current = payload
-        })
+        const subscribev0 = listen<{ id: string }>(
+            'pty-spawn',
+            ({ payload }) => {
+                console.log('Spawned pty: ', payload)
+                vID.current = payload.id
+            }
+        )
 
         const subscribev1 = listen<{
             id: string
             bytes: Uint8Array
         }>('pty-stdout', ({ payload: { id, bytes } }) => {
-
             console.log('Received stdout: ', id, bytes)
 
             const pty = ptys.get(id)
@@ -44,9 +45,9 @@ const Component: FC<{
         })
 
         const subscribev2 = listen<{
-            id: string,
-            success: boolean,
-            code?: number,
+            id: string
+            success: boolean
+            code?: number
         }>('pty-exit', ({ payload }) => {
             console.log('Exited pty: ', payload)
         })
@@ -74,14 +75,13 @@ const Component: FC<{
             pty.terminal.loadAddon(fitAddon)
             pty.terminal.onData((data: string) => {
                 console.log('Sending data to pty: ', vID)
-                invoke('beta_write_pty', { id: vID.current, data })
+                invoke('write_pty', { id: vID.current, data })
                 // TODO: handle response
             })
 
             fitAddon.fit()
 
             pty.terminal.onResize((event) => {
-
                 console.log('Resizing pty: ', event)
 
                 // invoke('resize_pty', {
@@ -95,7 +95,7 @@ const Component: FC<{
                 // }).catch(console.error)
             })
 
-            invoke<string>('beta_spawn_pty', {
+            invoke<string>('spawn_pty', {
                 id,
                 shell: pty.shell,
                 // size: {

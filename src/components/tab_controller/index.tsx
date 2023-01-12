@@ -66,65 +66,74 @@ const Component: FC = () => {
 
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="droppable" direction="horizontal">
-                    {(droppable) => (
-                        <div
-                            className="flex w-full gap-2"
-                            ref={droppable.innerRef}
-                            {...droppable.droppableProps}
-                        >
-                            {Array.from(ptys.entries()).map(
-                                ([id, pty], index) => (
-                                    <Draggable
-                                        key={index}
-                                        draggableId={id}
-                                        index={index}
-                                    >
-                                        {(draggable, snapshot) => {
-                                            preventDragYMovement(draggable)
+                    {(droppable) => {
+                        return (
+                            <div
+                                className="flex w-full gap-2"
+                                ref={droppable.innerRef}
+                                {...droppable.droppableProps}
+                            >
+                                {Array.from(ptys.entries()).map(
+                                    ([id, pty], index) => (
+                                        <Draggable
+                                            key={index}
+                                            draggableId={id}
+                                            index={index}
+                                        >
+                                            {(draggable, snapshot) => {
+                                                preventDragYMovement(draggable)
 
-                                            return (
-                                                <div
-                                                    className={`flex flex-grow ${
-                                                        snapshot.isDragging
-                                                            ? 'z-50'
-                                                            : 'z-0'
-                                                    }`}
-                                                    ref={draggable.innerRef}
-                                                    {...draggable.draggableProps}
-                                                    {...draggable.dragHandleProps}
-                                                >
-                                                    <Tab
-                                                        href={'/terminal/' + id}
-                                                        label={
-                                                            pty.shell
-                                                                .display_name
-                                                        }
-                                                        icon={
-                                                            <Center>
-                                                                <Image
-                                                                    src={
-                                                                        pty
-                                                                            .shell
-                                                                            .icon
-                                                                    }
-                                                                    alt="pty-icon"
-                                                                    width={16}
-                                                                    height={16}
-                                                                />
-                                                            </Center>
-                                                        }
-                                                        dragging={
+                                                return (
+                                                    <div
+                                                        className={`flex flex-grow ${
                                                             snapshot.isDragging
-                                                        }
-                                                    />
-                                                </div>
-                                            )
-                                        }}
-                                    </Draggable>
-                                )
-                            )}
-                        </div>
-                    )}
+                                                                ? 'z-50'
+                                                                : 'z-0'
+                                                        }`}
+                                                        ref={draggable.innerRef}
+                                                        {...draggable.draggableProps}
+                                                        {...draggable.dragHandleProps}
+                                                    >
+                                                        <Tab
+                                                            href={
+                                                                '/terminal/' +
+                                                                id
+                                                            }
+                                                            label={
+                                                                pty.shell
+                                                                    .display_name
+                                                            }
+                                                            icon={
+                                                                <Center>
+                                                                    <Image
+                                                                        src={
+                                                                            pty
+                                                                                .shell
+                                                                                .icon
+                                                                        }
+                                                                        alt="pty-icon"
+                                                                        width={
+                                                                            16
+                                                                        }
+                                                                        height={
+                                                                            16
+                                                                        }
+                                                                    />
+                                                                </Center>
+                                                            }
+                                                            dragging={
+                                                                snapshot.isDragging
+                                                            }
+                                                        />
+                                                    </div>
+                                                )
+                                            }}
+                                        </Draggable>
+                                    )
+                                )}
+                            </div>
+                        )
+                    }}
                 </Droppable>
             </DragDropContext>
 

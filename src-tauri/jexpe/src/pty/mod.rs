@@ -19,6 +19,11 @@ struct PtyExitPayload {
     code: Option<u32>,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+struct PtySpawnPayload {
+    id: String
+}
+
 pub struct PtyProcess {
     id: String,
     pty_master: Box<dyn MasterPty + Send>,
