@@ -1,78 +1,53 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import type { FCWithChildren } from 'src/types'
-import type {
-    IPty,
-    IPtyContext,
-    IPtyExitPayload,
-    IPtySize,
-    IPtySpawnPayload,
-    IPtyStdoutPayload,
-    ISystemShell,
-} from './types'
-import { Terminal } from 'xterm'
+import type { IPty, IPtyContext, IPtyExitPayload, IPtySize, IPtySpawnPayload, IPtyStdoutPayload, ISystemShell } from './types'
 import { invoke } from '@tauri-apps/api/tauri'
+import { useRouter } from 'next/router'
 
 const PtyContext = createContext<IPtyContext>({
     shells: [],
     ptys: [],
     currentPty: undefined,
-    setCurrentPty: () => {
-    },
-    spawnPty: () => {
-    },
-    writePty: () => {
-    },
-    resizePty: () => {
-    },
-    killPty: () => {
-    },
+    setCurrentPty: () => undefined,
+    spawnPty: () => undefined,
+    writePty: () => undefined,
+    resizePty: () => undefined,
+    killPty: () => undefined,
 })
 
 export const PtyContextProvider: FCWithChildren = ({ children }) => {
-
     const [shells, setShells] = useState<ISystemShell[]>([])
-    const [ptys, setPtys] = useState<Map<string, IPty>>(new Map())
+    const [ptys, setPtys] = useState<IPty[]>([])
     const [currentPty, setCurrentPty] = useState<string | undefined>(undefined)
+    const router = useRouter()
 
     const spawnPty = (shell: ISystemShell) => {
-        invoke<void>('spawn_pty', { shell })
-            .catch(console.error)
+        invoke('spawn_pty', { shell }).catch(console.error)
     }
 
     const writePty = (id: string, data: string) => {
-        invoke<void>('write_pty', { id, data })
-            .catch(console.error)
+        invoke('write_pty', { id, data }).catch(console.error)
     }
 
     const resizePty = (id: string, size: IPtySize) => {
-        invoke<void>('resize_pty', { id, size })
-            .catch(console.error)
+        invoke('resize_pty', { id, size }).catch(console.error)
     }
 
     const killPty = (id: string) => {
-        invoke<void>('kill_pty', { id })
-            .catch(console.error)
+        invoke('kill_pty', { id }).catch(console.error)
     }
 
     useEffect(() => {
+        invoke<ISystemShell[]>('get_system_shells').then(setShells).catch(console.error)
 
-        console.log('UseEffect called.')
-
-        invoke<ISystemShell[]>('get_system_shells')
-            .then(setShells)
-            .catch(console.error)
-
-        const spawnListener = listen<IPtySpawnPayload>(
-            'pty-spawn',
-            async ({ payload }) => {
-
-                console.log('pty-spawn', payload)
-
-                const { Terminal } = await import('xterm')
+        const spawnListener = listen<IPtySpawnPayload>('pty-spawn', ({ payload }) => {
+            console.log(`spawn: ${payload.id}`)
+            import('xterm').then((mod) => {
+                const { Terminal } = mod
 
                 setPtys((ptys) => {
-                    ptys.set(payload.id, {
+                    ptys.push({
                         id: payload.id,
                         shell: payload.shell,
                         terminal: new Terminal({
@@ -85,65 +60,59 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
                             cursorBlink: true,
                         }),
                     })
+
                     return ptys
                 })
 
                 setCurrentPty(payload.id)
-            },
-        )
+                if (router.asPath !== '/terminal') router.push('/terminal')
+            })
+        })
 
-        const exitListener = listen<IPtyExitPayload>(
-            'pty-exit',
-            async ({ payload }) => {
+        const exitListener = listen<IPtyExitPayload>('pty-exit', ({ payload }) => {
+            const index = ptys.findIndex((pty) => pty.id === payload.id)
 
-                console.log('pty-exit', payload)
+            setPtys((ptys) => {
+                const newPtys = ptys.filter((pty) => pty.id !== payload.id)
 
-                setPtys((ptys) => {
-                    ptys.delete(payload.id)
-                    return ptys
-                })
-            },
-        )
+                // Handle tab switch on close
+                if (ptys.length - 1 > 0) setCurrentPty(newPtys[index >= newPtys.length ? newPtys.length - 1 : index].id)
+                else router.push('/')
 
-        const stdoutListener = listen<IPtyStdoutPayload>(
-            'pty-stdout',
-            async ({ payload }) => {
+                return [...newPtys]
+            })
+        })
 
-                console.log('pty-stdout', payload)
+        const stdoutListener = listen<IPtyStdoutPayload>('pty-stdout', ({ payload }) => {
+            const pty = ptys.find((pty) => pty.id === payload.id)
+            console.log(payload.id)
+            if (!pty) {
+                return
+            }
 
-                const pty = ptys.get(payload.id)
-                if (!pty) {
-                    return
-                }
-
-                pty.terminal.write(payload.bytes)
-            },
-        )
+            pty.terminal.write(payload.bytes)
+        })
 
         return () => {
-            spawnListener.then(fn => fn())
-            exitListener.then(fn => fn())
-            stdoutListener.then(fn => fn())
+            spawnListener.then((fn) => fn())
+            exitListener.then((fn) => fn())
+            stdoutListener.then((fn) => fn())
         }
-
     }, [])
 
-    useEffect(() => {
-        console.log('State updated', currentPty)
-    }, [currentPty])
-
-
     return (
-        <PtyContext.Provider value={{
-            shells,
-            ptys: Array.from(ptys.values()),
-            currentPty,
-            setCurrentPty,
-            spawnPty,
-            writePty,
-            resizePty,
-            killPty,
-        }}>
+        <PtyContext.Provider
+            value={{
+                shells,
+                ptys: Array.from(ptys.values()),
+                currentPty,
+                setCurrentPty,
+                spawnPty,
+                writePty,
+                resizePty,
+                killPty,
+            }}
+        >
             {children}
         </PtyContext.Provider>
     )
