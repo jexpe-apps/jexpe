@@ -5,20 +5,15 @@ import { Button, theme, Typography } from 'antd'
 import type { ITabProps } from './types'
 import { useRouter } from 'next/router'
 
-const Component: FC<ITabProps> = ({ href, label, icon, onClose, dragging }) => {
+const Component: FC<ITabProps> = ({ href, label, icon, onClick, onClose, active, dragging }) => {
     const { token } = theme.useToken()
 
     const router = useRouter()
 
-    const active = useMemo(
-        () => router.asPath === href || dragging,
-        [dragging, router.asPath]
-    )
-
     return (
-        <Link href={href} className="w-full">
+        <Link href={href} className='w-full'>
             <Button
-                className="w-full flex items-center justify-between gap-[16px]"
+                className='w-full flex items-center justify-between gap-[16px]'
                 type={active ? 'primary' : 'default'}
                 ghost={active}
                 icon={icon}
@@ -29,14 +24,15 @@ const Component: FC<ITabProps> = ({ href, label, icon, onClose, dragging }) => {
                         ? token.colorBgElevated
                         : token.colorBgContainer,
                 }}
+                onClick={onClick}
             >
-                <Typography.Text className="flex-grow w-0 text-start" ellipsis>
+                <Typography.Text className='flex-grow w-0 text-start' ellipsis>
                     {label}
                 </Typography.Text>
 
-                <Button type="text" size="small">
-                    <X onClick={onClose} size={12} />
-                </Button>
+                {/*<Button type="text" size="small">*/}
+                {/*    <X onClick={onClose} size={12} />*/}
+                {/*</Button>*/}
             </Button>
         </Link>
     )

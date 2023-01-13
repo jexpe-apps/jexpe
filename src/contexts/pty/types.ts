@@ -40,6 +40,7 @@ export interface IPtyContext {
     shells: ISystemShell[]
     ptys: IPty[]
     currentPty: string | undefined
+    setCurrentPty: (id: string) => void
     spawnPty: (shell: ISystemShell) => void
     writePty: (id: string, data: string) => void
     resizePty: (id: string, size: IPtySize) => void

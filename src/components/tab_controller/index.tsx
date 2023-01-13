@@ -13,8 +13,10 @@ import Image from 'next/image'
 import { usePty } from 'src/contexts'
 
 const Component: FC = () => {
-    const { ptys } = usePty()
+    const { ptys, currentPty, setCurrentPty } = usePty()
     const { token: { paddingXS } } = theme.useToken()
+
+    console.log('Component updated', currentPty)
 
     // a little function to help us with reordering the result
     // const reorder = (list: any, startIndex: any, endIndex: any) => {
@@ -77,15 +79,12 @@ const Component: FC = () => {
                                         index={index}
                                     >
                                         {(draggable, snapshot) => {
+
                                             preventDragYMovement(draggable)
 
                                             return (
                                                 <div
-                                                    className={`flex flex-grow ${
-                                                        snapshot.isDragging
-                                                            ? 'z-50'
-                                                            : 'z-0'
-                                                    }`}
+                                                    className={`flex flex-grow`}
                                                     ref={draggable.innerRef}
                                                     {...draggable.draggableProps}
                                                     {...draggable.dragHandleProps}
@@ -103,6 +102,8 @@ const Component: FC = () => {
                                                                 />
                                                             </Center>
                                                         }
+                                                        onClick={() => setCurrentPty(pty.id)}
+                                                        active={currentPty === pty.id}
                                                         dragging={snapshot.isDragging}
                                                     />
                                                 </div>

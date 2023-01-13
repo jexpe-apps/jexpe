@@ -17,6 +17,8 @@ const PtyContext = createContext<IPtyContext>({
     shells: [],
     ptys: [],
     currentPty: undefined,
+    setCurrentPty: () => {
+    },
     spawnPty: () => {
     },
     writePty: () => {
@@ -126,11 +128,17 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
 
     }, [])
 
+    useEffect(() => {
+        console.log('State updated', currentPty)
+    }, [currentPty])
+
+
     return (
         <PtyContext.Provider value={{
             shells,
             ptys: Array.from(ptys.values()),
             currentPty,
+            setCurrentPty,
             spawnPty,
             writePty,
             resizePty,
