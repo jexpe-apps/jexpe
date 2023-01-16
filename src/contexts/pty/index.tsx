@@ -43,30 +43,32 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
 
         const spawnListener = listen<IPtySpawnPayload>('pty-spawn', ({ payload }) => {
             console.log(`spawn: ${payload.id}`)
-            import('xterm').then((mod) => {
-                const { Terminal } = mod
+            import('xterm')
+                .then((mod) => {
+                    const { Terminal } = mod
 
-                setPtys((ptys) => {
-                    ptys.push({
-                        id: payload.id,
-                        shell: payload.shell,
-                        terminal: new Terminal({
-                            theme: {
-                                background: '#1A1B1E',
-                            },
-                            fontFamily: 'Cascadia Mono, MesloLGS NF',
-                            fontWeight: 'normal',
-                            fontSize: 14,
-                            cursorBlink: true,
-                        }),
+                    setPtys((ptys) => {
+                        ptys.push({
+                            id: payload.id,
+                            shell: payload.shell,
+                            terminal: new Terminal({
+                                theme: {
+                                    background: '#1A1B1E',
+                                },
+                                fontFamily: 'Cascadia Mono, MesloLGS NF',
+                                fontWeight: 'normal',
+                                fontSize: 14,
+                                cursorBlink: true,
+                            }),
+                        })
+
+                        return ptys
                     })
 
-                    return ptys
+                    setCurrentPty(payload.id)
+                    if (router.asPath !== '/terminal') void router.push('/terminal')
                 })
-
-                setCurrentPty(payload.id)
-                if (router.asPath !== '/terminal') router.push('/terminal')
-            })
+                .catch(console.error)
         })
 
         const exitListener = listen<IPtyExitPayload>('pty-exit', ({ payload }) => {
@@ -77,7 +79,7 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
 
                 // Handle tab switch on close
                 if (ptys.length - 1 > 0) setCurrentPty(newPtys[index >= newPtys.length ? newPtys.length - 1 : index].id)
-                else router.push('/')
+                else void router.push('/')
 
                 return [...newPtys]
             })
@@ -94,11 +96,13 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
         })
 
         return () => {
-            spawnListener.then((fn) => fn())
-            exitListener.then((fn) => fn())
-            stdoutListener.then((fn) => fn())
+            spawnListener.then((fn) => fn()).catch(console.error)
+
+            exitListener.then((fn) => fn()).catch(console.error)
+
+            stdoutListener.then((fn) => fn()).catch(console.error)
         }
-    }, [])
+    }, [ptys, router])
 
     return (
         <PtyContext.Provider

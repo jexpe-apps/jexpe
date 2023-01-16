@@ -1,3 +1,3 @@
-export interface IXTerm {
-    id: string;
+export interface IXTermProps {
+    id: string
 }

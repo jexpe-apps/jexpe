@@ -1,14 +1,14 @@
 import useResizeObserver from '@react-hook/resize-observer'
-import { FC, useEffect, useRef } from 'react'
+import { FC, useEffect, useMemo, useRef } from 'react'
 import { FitAddon } from 'xterm-addon-fit'
 import { usePty } from 'src/contexts'
-import type { IXTerm } from './types'
+import type { IXTermProps } from './types'
 
-const Component: FC<IXTerm> = ({ id }) => {
+const Component: FC<IXTermProps> = ({ id }) => {
     const { ptys, writePty, resizePty } = usePty()
 
     const target = useRef<HTMLDivElement | null>(null)
-    const fitAddon = new FitAddon()
+    const fitAddon = useMemo(() => new FitAddon(), [])
 
     useEffect(() => {
         if (!target.current) {
@@ -41,7 +41,7 @@ const Component: FC<IXTerm> = ({ id }) => {
             writeListener.dispose()
             resizeListener.dispose()
         }
-    }, [target, id, ptys])
+    }, [target, id, ptys, fitAddon, writePty, resizePty])
 
     useResizeObserver(target, () => {
         const dimensions = fitAddon.proposeDimensions()

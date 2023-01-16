@@ -104,6 +104,8 @@ pub async fn spawn_pty(
                 shell: shell.clone(),
             })
             .unwrap();
+
+        println!("[TAURI]: Successfully spawned pty ({}).", id.clone());
     }
 
     loop {
@@ -150,21 +152,17 @@ pub async fn spawn_pty(
 
         // Need to drop the stdin_tx to avoid deadlock when waiting on stdin_task
         drop(pty.stdin_tx);
-        println!("stdin_tx dropped");
 
         // Need to drop the kill_tx to drop also the kill_rx
         drop(pty.kill_tx);
-        println!("kill_tx dropped");
 
         // Need to drop the pty_master to close out file handles and avoid deadlock when waiting on stdout_task
         drop(pty.pty_master);
-        println!("pty_master dropped");
 
         pty.stdin_task.await.unwrap();
-        println!("stdin_task finished");
-
         pty.stdout_task.await.unwrap();
-        println!("stdout_task finished");
+
+        println!("[TAURI]: Successfully dropped pty ({}).", id.clone());
     }
 
     Ok(())

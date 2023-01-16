@@ -1,7 +1,6 @@
 import { NextPage } from 'next'
 import { AppProps } from 'next/app'
 import { FC, ReactElement, ReactNode } from 'react'
-import type { Terminal } from 'xterm'
 
 export type LayoutFC = (page: ReactElement) => ReactNode
 

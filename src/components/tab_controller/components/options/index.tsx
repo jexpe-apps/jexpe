@@ -7,6 +7,7 @@ import { Center } from 'src/components'
 
 const Component: FC = () => {
     const { shells, spawnPty } = usePty()
+
     const items = useMemo(() => {
         const items: MenuProps['items'] = shells.map((shell, index) => ({
             key: index,
@@ -18,7 +19,7 @@ const Component: FC = () => {
         items.concat([{ type: 'divider' }, { key: 'settings', label: 'Settings', icon: <Gear size={14} /> }])
 
         return items
-    }, [shells])
+    }, [shells, spawnPty])
 
     return (
         <Space.Compact>

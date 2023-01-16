@@ -1,10 +1,9 @@
 import React, { FC } from 'react'
-import { X } from 'phosphor-react'
 import Link from 'next/link'
 import { Button, theme, Typography } from 'antd'
 import type { ITabProps } from './types'
 
-const Component: FC<ITabProps> = ({ href, label, icon, onClick, onClose, active, dragging }) => {
+const Component: FC<ITabProps> = ({ href, label, icon, onClick, active }) => {
     const { token } = theme.useToken()
 
     return (
