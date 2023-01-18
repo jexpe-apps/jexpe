@@ -28,13 +28,13 @@ Our stack is based on [Tauri](https://tauri.app/v1/guides/getting-started/prereq
 
 ```console
 
-# Install all the dependencies listed within package.json.
+# Install all the dependencies listed within package.json
 yarn install
 
-# To be sure of using basic linting and formatting rules, subscribe to git-hooks.
+# To be sure of using basic linting and formatting rules, subscribe to git-hooks
 yarn prepare
 
-# You are ready to start the development environment.
+# You are ready to start the development environment
 yarn tauri dev
 ```
 
