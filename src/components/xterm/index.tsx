@@ -12,20 +12,24 @@ const Component: FC<IXTermProps> = ({ id }) => {
     const target = useRef<HTMLDivElement | null>(null)
     const fitAddon = useMemo(() => new FitAddon(), [])
 
+    const terminal = useMemo(
+        () =>
+            new Terminal({
+                theme: {
+                    background: '#1A1B1E',
+                },
+                fontFamily: 'Cascadia Mono, MesloLGS NF',
+                fontWeight: 'normal',
+                fontSize: 14,
+                cursorBlink: true,
+            }),
+        []
+    )
+
     useEffect(() => {
         if (!target.current) {
             return
         }
-
-        const terminal = new Terminal({
-            theme: {
-                background: '#1A1B1E',
-            },
-            fontFamily: 'Cascadia Mono, MesloLGS NF',
-            fontWeight: 'normal',
-            fontSize: 14,
-            cursorBlink: true,
-        })
 
         terminal.open(target.current)
         terminal.focus()
@@ -56,13 +60,15 @@ const Component: FC<IXTermProps> = ({ id }) => {
 
             terminal.dispose()
         }
-    }, [fitAddon, id, resizePty, writePty])
+    }, [fitAddon, id, resizePty, terminal, writePty])
 
     useResizeObserver(target, () => {
         const dimensions = fitAddon.proposeDimensions()
         if (!dimensions) {
             return
         }
+
+        terminal.clear()
 
         resizePty(id, {
             cols: dimensions.cols,
