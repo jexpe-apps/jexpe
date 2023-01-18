@@ -2,10 +2,12 @@ import useResizeObserver from '@react-hook/resize-observer'
 import { FC, useEffect, useMemo, useRef } from 'react'
 import { FitAddon } from 'xterm-addon-fit'
 import { usePty } from 'src/contexts'
-import type { IXTermProps } from './types'
+import { Terminal } from 'xterm'
+import { listen } from '@tauri-apps/api/event'
+import type { IXTermProps, IPtyStdoutPayload } from './types'
 
 const Component: FC<IXTermProps> = ({ id }) => {
-    const { ptys, writePty, resizePty } = usePty()
+    const { writePty, resizePty } = usePty()
 
     const target = useRef<HTMLDivElement | null>(null)
     const fitAddon = useMemo(() => new FitAddon(), [])
@@ -14,19 +16,23 @@ const Component: FC<IXTermProps> = ({ id }) => {
         if (!target.current) {
             return
         }
-        const index = ptys.findIndex((x) => x.id === id)
-        if (index < 0) {
-            return
-        }
 
-        const pty = ptys[index]
+        const terminal = new Terminal({
+            theme: {
+                background: '#1A1B1E',
+            },
+            fontFamily: 'Cascadia Mono, MesloLGS NF',
+            fontWeight: 'normal',
+            fontSize: 14,
+            cursorBlink: true,
+        })
 
-        pty.terminal.open(target.current)
-        pty.terminal.focus()
-        pty.terminal.loadAddon(fitAddon)
+        terminal.open(target.current)
+        terminal.focus()
+        terminal.loadAddon(fitAddon)
 
-        const writeListener = pty.terminal.onData((data) => writePty(id, data))
-        const resizeListener = pty.terminal.onResize((size) =>
+        terminal.onData((data) => writePty(id, data))
+        terminal.onResize((size) =>
             resizePty(id, {
                 cols: size.cols,
                 rows: size.rows,
@@ -37,11 +43,20 @@ const Component: FC<IXTermProps> = ({ id }) => {
 
         fitAddon.fit()
 
+        const listener = listen<IPtyStdoutPayload>('pty-stdout', ({ payload }) => {
+            if (payload.id !== id) {
+                return
+            }
+
+            terminal.write(payload.bytes)
+        })
+
         return () => {
-            writeListener.dispose()
-            resizeListener.dispose()
+            listener.then((unlisten) => unlisten()).catch(console.error)
+
+            terminal.dispose()
         }
-    }, [target, id, ptys, fitAddon, writePty, resizePty])
+    }, [fitAddon, id, resizePty, writePty])
 
     useResizeObserver(target, () => {
         const dimensions = fitAddon.proposeDimensions()
@@ -63,4 +78,3 @@ const Component: FC<IXTermProps> = ({ id }) => {
 }
 
 export default Component
-// export default dynamic(() => Promise.resolve(Component), { ssr: false })

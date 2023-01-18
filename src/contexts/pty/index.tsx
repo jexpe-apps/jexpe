@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import type { FCWithChildren } from 'src/types'
-import type { IPty, IPtyContext, IPtyExitPayload, IPtySize, IPtySpawnPayload, IPtyStdoutPayload, ISystemShell } from './types'
+import type { IPty, IPtyContext, IPtyExitPayload, IPtySize, IPtySpawnPayload, ISystemShell } from './types'
 import { invoke } from '@tauri-apps/api/tauri'
 import { useRouter } from 'next/router'
 
@@ -42,65 +42,43 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
         invoke<ISystemShell[]>('get_system_shells').then(setShells).catch(console.error)
 
         const spawnListener = listen<IPtySpawnPayload>('pty-spawn', ({ payload }) => {
-            console.log(`spawn: ${payload.id}`)
-            import('xterm')
-                .then((mod) => {
-                    const { Terminal } = mod
-
-                    setPtys((ptys) => {
-                        ptys.push({
-                            id: payload.id,
-                            shell: payload.shell,
-                            terminal: new Terminal({
-                                theme: {
-                                    background: '#1A1B1E',
-                                },
-                                fontFamily: 'Cascadia Mono, MesloLGS NF',
-                                fontWeight: 'normal',
-                                fontSize: 14,
-                                cursorBlink: true,
-                            }),
-                        })
-
-                        return ptys
-                    })
-
-                    setCurrentPty(payload.id)
-                    if (router.asPath !== '/terminal') void router.push('/terminal')
+            setPtys((ptys) => {
+                ptys.push({
+                    id: payload.id,
+                    shell: payload.shell,
                 })
-                .catch(console.error)
+
+                return ptys
+            })
+
+            setCurrentPty(payload.id)
+
+            if (router.asPath !== '/terminal') {
+                void router.push('/terminal')
+            }
         })
 
         const exitListener = listen<IPtyExitPayload>('pty-exit', ({ payload }) => {
-            const index = ptys.findIndex((pty) => pty.id === payload.id)
-
             setPtys((ptys) => {
+                const index = ptys.findIndex((pty) => pty.id === payload.id)
+
                 const newPtys = ptys.filter((pty) => pty.id !== payload.id)
 
                 // Handle tab switch on close
-                if (ptys.length - 1 > 0) setCurrentPty(newPtys[index >= newPtys.length ? newPtys.length - 1 : index].id)
-                else void router.push('/')
+                if (ptys.length - 1 > 0) {
+                    setCurrentPty(newPtys[index >= newPtys.length ? newPtys.length - 1 : index].id)
+                } else {
+                    void router.push('/')
+                }
 
                 return [...newPtys]
             })
-        })
-
-        const stdoutListener = listen<IPtyStdoutPayload>('pty-stdout', ({ payload }) => {
-            const pty = ptys.find((pty) => pty.id === payload.id)
-            console.log(payload.id)
-            if (!pty) {
-                return
-            }
-
-            pty.terminal.write(payload.bytes)
         })
 
         return () => {
             spawnListener.then((fn) => fn()).catch(console.error)
 
             exitListener.then((fn) => fn()).catch(console.error)
-
-            stdoutListener.then((fn) => fn()).catch(console.error)
         }
     }, [ptys, router])
 

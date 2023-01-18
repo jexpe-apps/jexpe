@@ -1,5 +1,3 @@
-import { Terminal } from 'xterm'
-
 export interface ISystemShell {
     display_name: string
     icon: string
@@ -17,23 +15,17 @@ export interface IPtySize {
 export interface IPty {
     id: string
     shell: ISystemShell
-    terminal: Terminal
 }
 
 export interface IPtySpawnPayload {
-    id: string,
-    shell: ISystemShell,
+    id: string
+    shell: ISystemShell
 }
 
 export interface IPtyExitPayload {
-    id: string,
-    success: boolean,
+    id: string
+    success: boolean
     code?: number
-}
-
-export interface IPtyStdoutPayload {
-    id: string,
-    bytes: Uint8Array
 }
 
 export interface IPtyContext {
