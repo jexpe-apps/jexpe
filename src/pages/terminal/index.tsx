@@ -3,7 +3,6 @@ import { Center, XTerm } from 'src/components'
 import { usePty } from 'src/contexts'
 
 const Terminal: NextPageWithLayout = () => {
-
     const { currentPty } = usePty()
 
     if (!currentPty) {

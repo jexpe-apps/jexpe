@@ -14,7 +14,7 @@ tauri-build = { version = "1.2", features = [] }
 serde_json = { version = "1.0" }
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.2", features = [] }
-tokio = { version = "1.23.0", features = ["macros", "rt", "sync", "time"] }
+tokio = { version = "1.24", features = ["macros", "rt", "sync", "time"] }
 cuid = { version = "1.2.0" }
 portable-pty = { git = "https://github.com/wez/wezterm.git", features = ["serde_support"] }
 

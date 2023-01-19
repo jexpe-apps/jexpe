@@ -17,7 +17,6 @@
         ]
     },
     "dependencies": {
-        "@headlessui/react": "^1.7.7",
         "@hello-pangea/dnd": "^16.2.0",
         "@react-hook/resize-observer": "^1.2.6",
         "@tauri-apps/api": "^1.2.0",
