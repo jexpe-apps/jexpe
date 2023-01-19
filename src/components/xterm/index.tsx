@@ -1,15 +1,17 @@
-import useResizeObserver from '@react-hook/resize-observer'
 import { FC, useEffect, useMemo, useRef } from 'react'
 import { FitAddon } from 'xterm-addon-fit'
 import { usePty } from 'src/contexts'
 import { Terminal } from 'xterm'
 import { listen } from '@tauri-apps/api/event'
+import { useSize } from 'ahooks'
 import type { IXTermProps, IPtyStdoutPayload } from './types'
 
 const Component: FC<IXTermProps> = ({ id }) => {
     const { writePty, resizePty } = usePty()
 
     const target = useRef<HTMLDivElement | null>(null)
+    const size = useSize(target)
+
     const fitAddon = useMemo(() => new FitAddon(), [])
 
     useEffect(() => {
@@ -33,15 +35,19 @@ const Component: FC<IXTermProps> = ({ id }) => {
         terminal.focus()
         terminal.loadAddon(fitAddon)
 
+        fitAddon.activate(terminal)
+
         terminal.onData((data) => writePty(id, data))
-        terminal.onResize((size) =>
+        terminal.onResize((size) => {
+            console.log('resize', size)
+
             resizePty(id, {
                 cols: size.cols,
                 rows: size.rows,
                 pixel_width: 0,
                 pixel_height: 0,
             })
-        )
+        })
 
         fitAddon.fit()
 
@@ -56,26 +62,11 @@ const Component: FC<IXTermProps> = ({ id }) => {
         return () => {
             listener.then((unlisten) => unlisten()).catch(console.error)
             terminal.dispose()
+            fitAddon.dispose()
         }
     }, [fitAddon, id, resizePty, writePty])
 
-    useResizeObserver(target, () => {
-        const dimensions = fitAddon.proposeDimensions()
-        if (!dimensions) {
-            return
-        }
-
-        // terminal.clear()
-
-        resizePty(id, {
-            cols: dimensions.cols,
-            rows: dimensions.rows,
-            pixel_width: 0,
-            pixel_height: 0,
-        })
-
-        fitAddon.fit()
-    })
+    useEffect(() => fitAddon.fit(), [size, fitAddon])
 
     return <div key={id} ref={target} style={{ overflow: 'hidden', height: '100%', width: '100%' }} />
 }

@@ -23,18 +23,22 @@ export const PtyContextProvider: FCWithChildren = ({ children }) => {
     const router = useRouter()
 
     const spawnPty = (shell: ISystemShell) => {
+        console.log('spawn', shell)
         invoke('spawn_pty', { shell }).catch(console.error)
     }
 
     const writePty = (id: string, data: string) => {
+        console.log('write', id)
         invoke('write_pty', { id, data }).catch(console.error)
     }
 
     const resizePty = (id: string, size: IPtySize) => {
+        console.log('resize', id)
         invoke('resize_pty', { id, size }).catch(console.error)
     }
 
     const killPty = (id: string) => {
+        console.log('kill', id)
         invoke('kill_pty', { id }).catch(console.error)
     }
 

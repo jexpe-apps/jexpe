@@ -18,8 +18,8 @@
     },
     "dependencies": {
         "@hello-pangea/dnd": "^16.2.0",
-        "@react-hook/resize-observer": "^1.2.6",
         "@tauri-apps/api": "^1.2.0",
+        "ahooks": "^3.7.4",
         "antd": "^5.1.4",
         "cuid": "^2.1.8",
         "jotai": "^1.13.0",
