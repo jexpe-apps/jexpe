@@ -26,9 +26,15 @@ Jexpe is a free, open source SSH and SFTP client that makes connecting to your r
 
 Our stack is based on [Tauri](https://tauri.app/v1/guides/getting-started/prerequisites) and [NextJS](https://nextjs.org/docs/getting-started) please follow following their installation steps before continuing. We use [Yarn](https://yarnpkg.com/getting-started/install) as package manager, so follow his installation steps too.
 
-Once done, you are ready to start the development environment:
+```console
 
-```bash
+# Install all the dependencies listed within package.json
+yarn install
+
+# To be sure of using basic linting and formatting rules, subscribe to git-hooks
+yarn prepare
+
+# You are ready to start the development environment
 yarn tauri dev
 ```
 
