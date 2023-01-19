@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a aria-label="GitHub commit activity" href="https://github.com/jexpe-apps/jexpe/graphs/commit-activity">
-    <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/jexpe-apps/jexpe?logo=github&style=for-the-badge&labelColor=000000">
+  <a aria-label="GitHub closed pull requests" href="https://github.com/jexpe-apps/jexpe/pulls">
+    <img alt="GitHub closed pull requests" src="https://img.shields.io/github/issues-pr-closed/jexpe-apps/jexpe?color=007ec6&logo=github&style=for-the-badge&labelColor=000000">
   </a>
   <a aria-label="License" href="https://github.com/jexpe-apps/jexpe/blob/dev/LICENSE">
     <img alt="GitHub" src="https://img.shields.io/github/license/jexpe-apps/jexpe?style=for-the-badge&labelColor=000000">
