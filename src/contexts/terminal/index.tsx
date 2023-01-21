@@ -99,7 +99,9 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                     // Focus the new terminal
                     setFocused(id)
 
-                    if (router.asPath !== '/terminal') void router.push('/terminal')
+                    if (router.asPath !== '/terminal') {
+                        void router.push('/terminal')
+                    }
                 })
                 // TODO: Maybe kill pty, just to be on the safe side (?)
                 .catch(console.error)
