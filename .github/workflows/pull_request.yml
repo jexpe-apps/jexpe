@@ -1,4 +1,4 @@
-name: 'test-on-pr'
+name: 'build-on-pr-review'
 on:
   pull_request_review:
     types: ["submitted"]
