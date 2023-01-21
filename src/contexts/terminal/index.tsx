@@ -43,7 +43,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                             cursor: '#10B981',
                             cursorAccent: '#10B98100',
                         },
-                        fontFamily: 'Cascadia Mono, MesloLGS NF',
+                        fontFamily: 'Cascadia Mono, MesloLGS NF, Monospace',
                         fontWeight: 'normal',
                         fontSize: 14,
                         cursorBlink: true,
