@@ -6,6 +6,7 @@ import { GET_SYSTEM_SHELLS_COMMAND, PTY_EXIT_EVENT, PTY_RESIZE_COMMAND, PTY_SPAW
 
 import type { FCWithChildren } from 'src/types'
 import type { ITerminal, ITerminalContext, IPTYSpawnPayload, IPTYExitPayload, IPTYSdoutPayload, ISystemShell } from './types'
+import { useRouter } from 'next/router'
 
 const TerminalContext = createContext<ITerminalContext>({
     shells: [],
@@ -19,6 +20,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
     const [shells, setShells] = useState<ISystemShell[]>([])
     const [terminals, setTerminals] = useState<ITerminal[]>([])
     const [focused, setFocused] = useState<string | undefined>(undefined)
+    const router = useRouter()
 
     const spawnShell = (shell: ISystemShell) => {
         invoke(PTY_SPAWN_COMMAND, { shell }).catch(console.error)
@@ -96,6 +98,8 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 
                     // Focus the new terminal
                     setFocused(id)
+
+                    if (router.asPath !== '/terminal') void router.push('/terminal')
                 })
                 // TODO: Maybe kill pty, just to be on the safe side (?)
                 .catch(console.error)
