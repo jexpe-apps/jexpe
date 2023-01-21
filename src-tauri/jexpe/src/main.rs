@@ -1,16 +1,14 @@
 use std::collections::HashMap;
-use std::sync::Arc;
-use tauri::Manager;
+use tauri::Builder;
 use tokio::sync::{Mutex};
 
-use pty::{PtyProcess};
+use crate::pty::PtyProcess;
 
+mod pty;
 mod shell;
 
-use window_vibrancy::{apply_blur, apply_vibrancy, NSVisualEffectMaterial};
-
 pub struct JexpeState {
-    ptys: Mutex<HashMap<String, Arc<Mutex<PtyProcess>>>>,
+    ptys: Mutex<HashMap<String, PtyProcess>>,
 }
 
 impl JexpeState {
@@ -21,15 +19,16 @@ impl JexpeState {
     }
 }
 
+
 fn main() {
-    tauri::Builder::default()
+    Builder::default()
         .manage(JexpeState::new())
         .invoke_handler(tauri::generate_handler![
             shell::commands::get_system_shells,
-            shell::commands::spawn_pty,
-            shell::commands::write_pty,
-            shell::commands::kill_pty,
-            shell::commands::resize_pty,
+            pty::commands::spawn_pty,
+            pty::commands::write_pty,
+            pty::commands::resize_pty,
+            pty::commands::kill_pty,
         ])
         .run(tauri::generate_context!())
         .expect("error while running jexpe application");

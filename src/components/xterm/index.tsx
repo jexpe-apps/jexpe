@@ -1,108 +1,49 @@
-import useResizeObserver from '@react-hook/resize-observer'
-import { FC, useEffect, useRef } from 'react'
+import { FC, useEffect, useMemo, useRef } from 'react'
 import { FitAddon } from 'xterm-addon-fit'
-import { WebglAddon } from 'xterm-addon-webgl'
-import { useShell } from 'src/contexts'
-import { Terminal } from 'xterm'
-import { invoke } from '@tauri-apps/api/tauri'
-import { router } from 'next/client'
-import { listen } from '@tauri-apps/api/event'
-import dynamic from 'next/dynamic'
+import { useSize } from 'ahooks'
 
-const Component: FC<{
-    id: string
-}> = ({ id }) => {
-    const { ptys, despawnShell } = useShell()
+import type { ITerminal } from 'src/contexts/terminal/types'
 
+const Component: FC<{ terminal: ITerminal; focused: boolean }> = ({ terminal, focused }) => {
     const target = useRef<HTMLDivElement | null>(null)
-    const fitAddon = new FitAddon()
+
+    const fitAddon = useMemo(() => new FitAddon(), [])
+    const size = useSize(target)
 
     useEffect(() => {
-        const subscribe = listen<{
-            id: string
-            bytes: Uint8Array
-        }>('pty-stdout', ({ payload: { id, bytes } }) => {
-            const pty = ptys.get(id)
-            if (!pty || !pty.terminal) {
-                return // TODO: handle this
-            }
-
-            console.log('Writing to terminal: ', bytes)
-
-            pty.terminal.write(bytes)
-        })
-
-        if (target.current) {
-            const pty = ptys.get(id)
-            if (!pty) {
-                return // TODO: handle this
-            }
-
-            pty.terminal = new Terminal({
-                theme: {
-                    background: '#1A1B1E',
-                },
-                fontFamily: 'Cascadia Mono, MesloLGS NF',
-                fontWeight: 'normal',
-                fontSize: 14,
-                cursorBlink: true,
-                // allowProposedApi: true,
-            })
-
-            pty.terminal.open(target.current)
-            // pty.terminal.loadAddon(new WebglAddon())
-            // pty.terminal.loadAddon(new CanvasAddon())
-            pty.terminal.loadAddon(fitAddon)
-            pty.terminal.onData((data: string) => {
-                invoke('write_pty', { id, data })
-                // TODO: handle response
-            })
-
-            fitAddon.fit()
-
-            pty.terminal.onResize((event) => {
-
-                console.log('Resizing pty: ', event)
-
-                // invoke('resize_pty', {
-                //     id,
-                //     size: {
-                //         cols,
-                //         rows,
-                //         pixel_width: 0,
-                //         pixel_height: 0,
-                //     },
-                // }).catch(console.error)
-            })
-
-            invoke<string>('spawn_pty', {
-                id,
-                shell: pty.shell,
-                size: {
-                    cols: pty.terminal.cols,
-                    rows: pty.terminal.rows,
-                    pixel_width: 0,
-                    pixel_height: 0,
-                },
-            }).then(() => {
-                // TODO: Remove pty from context and handle status
-                router.push('/')
-                despawnShell(id)
-            })
+        if (!focused) {
+            return
         }
 
+        fitAddon.fit()
+    }, [size, focused])
+
+    useEffect(() => {
+        terminal.xterm.focus()
+
+        return () => terminal.xterm.blur()
+    }, [focused])
+
+    useEffect(() => {
+        if (!target.current) {
+            return
+        }
+
+        terminal.xterm.open(target.current)
+        terminal.xterm.focus()
+
+        // Activate the xtermjs fit-addon
+        terminal.xterm.loadAddon(fitAddon)
+        fitAddon.activate(terminal.xterm)
+
+        fitAddon.fit()
+
         return () => {
-            subscribe.then((unsubscribe) => unsubscribe())
+            // TODO: Destroy terminal and kill pty
         }
     }, [])
 
-    useResizeObserver(target, () => {
-        console.log('Resizing terminal')
-        fitAddon.fit()
-    })
-
-    return <div ref={target} style={{ height: '100%', width: '100%' }} />
+    return <div ref={target} className="h-full w-full overflow-hidden" style={{ display: focused ? 'flex' : 'none' }} />
 }
 
 export default Component
-// export default dynamic(() => Promise.resolve(Component), { ssr: false })

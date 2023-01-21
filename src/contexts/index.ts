@@ -1,1 +1,1 @@
-export { default as useShell } from './shell'
+export { TerminalContextProvider, useTerminal } from './terminal'
