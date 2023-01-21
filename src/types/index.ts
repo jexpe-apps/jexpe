@@ -17,3 +17,7 @@ export type FCWithChildren<V = object> = FC<{ children?: ReactNode } & V>
 
 export type Maybe<T> = T | undefined
 export type Nullable<T> = T | null
+
+export interface UniqueObject {
+    id: string
+}

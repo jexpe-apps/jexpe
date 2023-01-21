@@ -5,6 +5,7 @@ use tokio::sync::mpsc::channel;
 use tokio::task::spawn_blocking;
 use tokio::time::sleep;
 use crate::JexpeState;
+use crate::pty::constants::{PTY_EXIT_EVENT, PTY_SPAWN_EVENT, PTY_STDOUT_EVENT};
 use crate::shell::SystemShell;
 use super::{PtyProcess, PtyExitPayload, PtyStdoutPayload, PtySpawnPayload};
 use super::constants::{MAX_PIPE_CHUNK_SIZE, READ_PAUSE_DURATION};
@@ -71,8 +72,9 @@ pub async fn spawn_pty(
         loop {
             match stdout_reader.read(&mut buf) {
                 Ok(n) if n > 0 => {
+
                     app_handle_clone
-                        .emit_all("pty-stdout", PtyStdoutPayload {
+                        .emit_all(PTY_STDOUT_EVENT, PtyStdoutPayload {
                             id: id_clone.clone(),
                             bytes: buf[..n].to_vec(),
                         })
@@ -99,7 +101,7 @@ pub async fn spawn_pty(
         });
 
         app_handle
-            .emit_all("pty-spawn", PtySpawnPayload {
+            .emit_all(PTY_SPAWN_EVENT, PtySpawnPayload {
                 id: id.clone(),
                 shell: shell.clone(),
             })
@@ -112,7 +114,7 @@ pub async fn spawn_pty(
         match (child.try_wait(), kill_rx.try_recv()) {
             (Ok(Some(status)), _) => {
                 app_handle
-                    .emit_all("pty-exit", PtyExitPayload {
+                    .emit_all(PTY_EXIT_EVENT, PtyExitPayload {
                         id: id.clone(),
                         success: status.success(),
                         code: Some(status.exit_code()),
@@ -122,7 +124,7 @@ pub async fn spawn_pty(
 
             (_, Ok(_)) => {
                 app_handle
-                    .emit_all("pty-exit", PtyExitPayload {
+                    .emit_all(PTY_EXIT_EVENT, PtyExitPayload {
                         id: id.clone(),
                         success: true,
                         code: None,
@@ -132,7 +134,7 @@ pub async fn spawn_pty(
 
             (Err(_), _) => {
                 app_handle
-                    .emit_all("pty-exit", PtyExitPayload {
+                    .emit_all(PTY_EXIT_EVENT, PtyExitPayload {
                         id: id.clone(),
                         success: false,
                         code: None,
@@ -176,8 +178,9 @@ pub async fn write_pty(
 ) -> Result<(), String> {
     let mut ptys = state.ptys.lock().await;
 
+    println!("Writing to pty ({}): {:x?}", id.clone(), data.clone());
     let pty = ptys.get_mut(&id)
-        .ok_or("The specified ID is not associated with any pty.")?;
+        .ok_or("[WRITE_PTY] The specified ID is not associated with any pty.")?;
 
     pty.stdin_tx.send(data.into_bytes())
         .await
@@ -195,7 +198,7 @@ pub async fn resize_pty(
     let ptys = state.ptys.lock().await;
 
     let pty = ptys.get(&id)
-        .ok_or("The specified ID is not associated with any pty.")?;
+        .ok_or("[RESIZE_PTY] The specified ID is not associated with any pty.")?;
 
     pty.pty_master.resize(size)
         .map_err(|x| x.to_string())?;
@@ -211,7 +214,7 @@ pub async fn kill_pty(
     let mut ptys = state.ptys.lock().await;
 
     let pty = ptys.get_mut(&id)
-        .ok_or("The specified ID is not associated with any pty.")?;
+        .ok_or("[KILL_PTY] The specified ID is not associated with any pty.")?;
 
     pty.kill_tx.send(())
         .await

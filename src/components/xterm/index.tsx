@@ -1,74 +1,61 @@
 import { FC, useEffect, useMemo, useRef } from 'react'
 import { FitAddon } from 'xterm-addon-fit'
-import { usePty } from 'src/contexts'
-import { Terminal } from 'xterm'
-import { listen } from '@tauri-apps/api/event'
 import { useSize } from 'ahooks'
-import type { IXTermProps, IPtyStdoutPayload } from './types'
 
-const Component: FC<IXTermProps> = ({ id }) => {
-    const { writePty, resizePty } = usePty()
+import type { ITerminal } from 'src/contexts/terminal/types'
+
+const Component: FC<{ terminal: ITerminal, focused: boolean }> = ({ terminal, focused }) => {
 
     const target = useRef<HTMLDivElement | null>(null)
-    const size = useSize(target)
 
     const fitAddon = useMemo(() => new FitAddon(), [])
+    const size = useSize(target)
 
     useEffect(() => {
+
+        if (!focused) {
+            return
+        }
+
+        fitAddon.fit()
+    }, [size, focused])
+
+
+    useEffect(() => {
+
+        terminal.xterm.focus()
+
+        return () => terminal.xterm.blur()
+
+    }, [focused])
+
+
+    useEffect(() => {
+
         if (!target.current) {
             return
         }
 
-        const terminal = new Terminal({
-            theme: {
-                background: '#1A1B1E',
-                cursor: '#10B981',
-                cursorAccent: '#10B98100',
-            },
-            fontFamily: 'Cascadia Mono, MesloLGS NF',
-            fontWeight: 'normal',
-            fontSize: 14,
-            cursorBlink: true,
-        })
+        terminal.xterm.open(target.current)
+        terminal.xterm.focus()
 
-        terminal.open(target.current)
-        terminal.focus()
-        terminal.loadAddon(fitAddon)
-
-        fitAddon.activate(terminal)
-
-        terminal.onData((data) => writePty(id, data))
-        terminal.onResize((size) => {
-            console.log('resize', size)
-
-            resizePty(id, {
-                cols: size.cols,
-                rows: size.rows,
-                pixel_width: 0,
-                pixel_height: 0,
-            })
-        })
+        // Activate the xtermjs fit-addon
+        terminal.xterm.loadAddon(fitAddon)
+        fitAddon.activate(terminal.xterm)
 
         fitAddon.fit()
 
-        const listener = listen<IPtyStdoutPayload>('pty-stdout', ({ payload }) => {
-            if (payload.id !== id) {
-                return
-            }
-
-            terminal.write(payload.bytes)
-        })
-
         return () => {
-            listener.then((unlisten) => unlisten()).catch(console.error)
-            terminal.dispose()
-            fitAddon.dispose()
+            // TODO: Destroy terminal and kill pty
         }
-    }, [fitAddon, id, resizePty, writePty])
 
-    useEffect(() => fitAddon.fit(), [size, fitAddon])
+    }, [])
 
-    return <div key={id} ref={target} style={{ overflow: 'hidden', height: '100%', width: '100%' }} />
+    return (
+        <div ref={target} className='h-full w-full overflow-hidden bg-amber-300'
+             style={{ display: focused ? 'flex' : 'none' }} />
+    )
+
 }
 
 export default Component

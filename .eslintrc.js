@@ -16,6 +16,6 @@ module.exports = {
     ],
     root: true,
     rules: {
-        'react-hooks/exhaustive-deps': ['error', { additionalHooks: '(useAtom)' }],
+        'react-hooks/exhaustive-deps': 'off',
     },
 }

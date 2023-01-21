@@ -1,3 +1,6 @@
+import type { Terminal } from "xterm"
+import { ReactElement } from 'react'
+
 export interface ISystemShell {
     display_name: string
     icon: string
@@ -15,6 +18,9 @@ export interface IPtySize {
 export interface IPty {
     id: string
     shell: ISystemShell
+    terminal: Terminal
+
+    canvas: ReactElement
 }
 
 export interface IPtySpawnPayload {
