@@ -8,6 +8,9 @@ export interface ITerminal extends UniqueObject {
 }
 
 export interface ITerminalContext {
+    shells: ISystemShell[]
+
+    spawnShell: (shell: ISystemShell) => void
     terminals: ITerminal[]
     focused: string | undefined
     focus: (id: string) => void

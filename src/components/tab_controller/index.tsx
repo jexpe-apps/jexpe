@@ -4,7 +4,7 @@ import { Center, Flex } from 'src/components'
 import { theme } from 'antd'
 import { HomeButton, Tab, OptionsMenu } from './components'
 import Image from 'next/image'
-import { usePty } from 'src/contexts'
+import { useTerminal } from 'src/contexts'
 import { useRouter } from 'next/router'
 
 const preventDragYMovement = (provided: DraggableProvided) => {
@@ -20,11 +20,12 @@ const preventDragYMovement = (provided: DraggableProvided) => {
 }
 
 const Component: FC = () => {
-    const { ptys, currentPty, setCurrentPty } = usePty()
+    const { asPath } = useRouter()
     const {
         token: { paddingXS },
     } = theme.useToken()
-    const router = useRouter()
+
+    const { terminals, focused, focus } = useTerminal()
 
     // a little function to help us with reordering the result
     // const reorder = (list: any, startIndex: any, endIndex: any) => {
@@ -60,23 +61,23 @@ const Component: FC = () => {
                     {(droppable) => {
                         return (
                             <div className="flex w-full gap-2" ref={droppable.innerRef} {...droppable.droppableProps}>
-                                {ptys.map((pty, index) => (
+                                {terminals.map((terminal, index) => (
                                     <Draggable key={index} draggableId={`draggable-${index}`} index={index}>
                                         {(draggable, snapshot) => {
                                             preventDragYMovement(draggable)
 
                                             return (
-                                                <div className={`flex flex-grow`} ref={draggable.innerRef} {...draggable.draggableProps} {...draggable.dragHandleProps}>
+                                                <div className="flex flex-grow" ref={draggable.innerRef} {...draggable.draggableProps} {...draggable.dragHandleProps}>
                                                     <Tab
                                                         href="/terminal"
-                                                        label={pty.shell.display_name}
+                                                        label={terminal.title}
                                                         icon={
                                                             <Center>
-                                                                <Image src={pty.shell.icon} alt="pty-icon" width={16} height={16} />
+                                                                <Image src={terminal.shell.icon} alt="pty-icon" width={16} height={16} />
                                                             </Center>
                                                         }
-                                                        onClick={() => setCurrentPty(pty.id)}
-                                                        active={router.asPath === '/terminal' && currentPty === pty.id}
+                                                        onClick={() => focus(terminal.id)}
+                                                        active={asPath === '/terminal' && focused === terminal.id}
                                                         dragging={snapshot.isDragging}
                                                     />
                                                 </div>

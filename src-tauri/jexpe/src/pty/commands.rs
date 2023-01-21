@@ -178,7 +178,6 @@ pub async fn write_pty(
 ) -> Result<(), String> {
     let mut ptys = state.ptys.lock().await;
 
-    println!("Writing to pty ({}): {:x?}", id.clone(), data.clone());
     let pty = ptys.get_mut(&id)
         .ok_or("[WRITE_PTY] The specified ID is not associated with any pty.")?;
 

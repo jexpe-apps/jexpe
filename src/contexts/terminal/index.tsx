@@ -2,34 +2,39 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/tauri'
 
-import { PTY_EXIT_EVENT, PTY_RESIZE_COMMAND, PTY_SPAWN_EVENT, PTY_STDIN_COMMAND, PTY_STDOUT_EVENT } from './constants'
+import { GET_SYSTEM_SHELLS_COMMAND, PTY_EXIT_EVENT, PTY_RESIZE_COMMAND, PTY_SPAWN_COMMAND, PTY_SPAWN_EVENT, PTY_STDIN_COMMAND, PTY_STDOUT_EVENT } from './constants'
 
 import type { FCWithChildren } from 'src/types'
-import type { ITerminal, ITerminalContext, IPTYSpawnPayload, IPTYExitPayload } from './types'
-import { IPTYSdoutPayload } from './types'
-
+import type { ITerminal, ITerminalContext, IPTYSpawnPayload, IPTYExitPayload, IPTYSdoutPayload, ISystemShell } from './types'
 
 const TerminalContext = createContext<ITerminalContext>({
+    shells: [],
+    spawnShell: () => undefined,
     terminals: [],
     focused: undefined,
     focus: () => undefined,
 })
 
 export const TerminalContextProvider: FCWithChildren = ({ children }) => {
-
+    const [shells, setShells] = useState<ISystemShell[]>([])
     const [terminals, setTerminals] = useState<ITerminal[]>([])
     const [focused, setFocused] = useState<string | undefined>(undefined)
 
+    const spawnShell = (shell: ISystemShell) => {
+        invoke(PTY_SPAWN_COMMAND, { shell }).catch(console.error)
+    }
+
     useEffect(() => {
+        invoke<ISystemShell[]>(GET_SYSTEM_SHELLS_COMMAND, {}).then(setShells).catch(console.error)
+    }, [])
 
+    useEffect(() => {
         const spawnListener = listen<IPTYSpawnPayload>(PTY_SPAWN_EVENT, ({ payload }) => {
-
             const { id, shell } = payload
 
             // Dynamically import xterm to ensure it's only loaded client-side
             import('xterm')
                 .then(({ Terminal }) => {
-
                     // Create a new xterm instance
                     const xterm = new Terminal({
                         // TODO: Add possibility to customize theme
@@ -44,10 +49,10 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                         cursorBlink: true,
                     })
 
-                    xterm.onData(data =>
+                    xterm.onData((data) =>
                         invoke(PTY_STDIN_COMMAND, { id, data })
                             // TODO: Handle errors properly
-                            .catch(console.error),
+                            .catch(console.error)
                     )
 
                     xterm.onResize((size) =>
@@ -61,43 +66,46 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                             },
                         })
                             // TODO: Handle errors properly
-                            .catch(console.error),
+                            .catch(console.error)
                     )
 
-                    xterm.onTitleChange(title => {
-                        setTerminals(terminals => terminals.map(terminal => {
-                            if (terminal.id === id) {
-                                return {
-                                    ...terminal,
-                                    title,
+                    xterm.onTitleChange((title) => {
+                        setTerminals((terminals) =>
+                            terminals.map((terminal) => {
+                                if (terminal.id === id) {
+                                    return {
+                                        ...terminal,
+                                        title,
+                                    }
                                 }
-                            }
-                            return terminal
-                        }))
+                                return terminal
+                            })
+                        )
                     })
 
                     // Add the terminal to the context
-                    setTerminals(terminals => [...terminals, {
-                        id,
-                        shell,
-                        title: shell.display_name,
-                        xterm,
-                    }])
+                    setTerminals((terminals) => [
+                        ...terminals,
+                        {
+                            id,
+                            shell,
+                            title: shell.display_name,
+                            xterm,
+                        },
+                    ])
 
                     // Focus the new terminal
                     setFocused(id)
-
                 })
                 // TODO: Maybe kill pty, just to be on the safe side (?)
                 .catch(console.error)
         })
 
         const stdoutListener = listen<IPTYSdoutPayload>(PTY_STDOUT_EVENT, ({ payload }) => {
-
             const { id, bytes } = payload
 
             // Find the terminal with the given id
-            const terminal = terminals.find(terminal => terminal.id === id)
+            const terminal = terminals.find((terminal) => terminal.id === id)
             if (!terminal) {
                 // TODO: Maybe kill pty, just to be on the safe side (?)
                 console.error(`[STDOUT-LISTENER] Could not find terminal with id ${id}`)
@@ -109,11 +117,10 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
         })
 
         const exitListener = listen<IPTYExitPayload>(PTY_EXIT_EVENT, ({ payload }) => {
-
             const { id, success, code } = payload
 
             // Find the terminal with the given id
-            const terminal = terminals.find(terminal => terminal.id === id)
+            const terminal = terminals.find((terminal) => terminal.id === id)
             if (!terminal) {
                 // This should never happen, but just to be on the safe side
                 console.error(`[EXIT-LISTENER] Could not find terminal with id ${id}`)
@@ -125,31 +132,26 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
             void code
 
             // Remove the terminal from the context
-            setTerminals(terminals => terminals.filter(terminal => terminal.id !== id))
+            setTerminals((terminals) => {
+                terminals = terminals.filter((terminal) => terminal.id !== id)
 
-            // Focus the nearby left/right terminal
-            setFocused(terminals.length > 0 ? terminals[0].id : undefined)
+                // Focus the nearby left/right terminal
+                setFocused(terminals.length > 0 ? terminals[0].id : undefined)
+
+                return terminals
+            })
         })
 
         return () => {
-            spawnListener.then((unlisten) => unlisten())
-                .catch(console.error)
+            spawnListener.then((unlisten) => unlisten()).catch(console.error)
 
-            stdoutListener.then((unlisten) => unlisten())
-                .catch(console.error)
+            stdoutListener.then((unlisten) => unlisten()).catch(console.error)
 
-            exitListener.then((unlisten) => unlisten())
-                .catch(console.error)
+            exitListener.then((unlisten) => unlisten()).catch(console.error)
         }
-
     }, [terminals])
 
-    return (
-        <TerminalContext.Provider value={{ terminals, focused, focus: setFocused }}>
-            {children}
-        </TerminalContext.Provider>
-    )
-
+    return <TerminalContext.Provider value={{ shells, spawnShell, terminals, focused, focus: setFocused }}>{children}</TerminalContext.Provider>
 }
 
 export const useTerminal = () => useContext(TerminalContext)
