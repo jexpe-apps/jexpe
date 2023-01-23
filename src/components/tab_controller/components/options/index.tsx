@@ -7,7 +7,7 @@ import { Center, Flex } from 'src/components'
 
 const Component: FC = () => {
     const { shells, spawnShell } = useTerminal()
-
+    
     const [open, setOpen] = useState(false)
 
     const showModal = () => {
@@ -33,7 +33,7 @@ const Component: FC = () => {
                     </Center>
                 }
             />
-
+            
             <Modal title="Select profile" open={open} onOk={handleOk} onCancel={handleCancel} footer={null}>
                 <Flex direction="column" className="gap-2">
                     {shells.map((shell, index) => (

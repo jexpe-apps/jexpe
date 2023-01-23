@@ -3,6 +3,7 @@ import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/tauri'
 
 import { GET_SYSTEM_SHELLS_COMMAND, PTY_EXIT_EVENT, PTY_RESIZE_COMMAND, PTY_SPAWN_COMMAND, PTY_SPAWN_EVENT, PTY_STDIN_COMMAND, PTY_STDOUT_EVENT } from './constants'
+import { useRouter } from 'next/router'
 
 import type { FCWithChildren } from 'src/types'
 import type { ITerminal, ITerminalContext, IPTYSpawnPayload, IPTYExitPayload, IPTYSdoutPayload, ISystemShell } from './types'
@@ -19,6 +20,8 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
     const [shells, setShells] = useState<ISystemShell[]>([])
     const [terminals, setTerminals] = useState<ITerminal[]>([])
     const [focused, setFocused] = useState<string | undefined>(undefined)
+
+    const router = useRouter()
 
     const spawnShell = (shell: ISystemShell) => {
         invoke(PTY_SPAWN_COMMAND, { shell }).catch(console.error)
@@ -43,7 +46,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                             cursor: '#10B981',
                             cursorAccent: '#10B98100',
                         },
-                        fontFamily: 'Cascadia Mono, MesloLGS NF',
+                        fontFamily: 'Cascadia Mono, MesloLGS NF, Monospace',
                         fontWeight: 'normal',
                         fontSize: 14,
                         cursorBlink: true,
@@ -96,6 +99,11 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 
                     // Focus the new terminal
                     setFocused(id)
+
+                    if (router.asPath !== '/terminal') {
+                        void router.push('/terminal')
+                    }
+                    
                 })
                 // TODO: Maybe kill pty, just to be on the safe side (?)
                 .catch(console.error)

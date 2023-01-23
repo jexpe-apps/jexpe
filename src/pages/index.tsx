@@ -11,7 +11,7 @@ const Page: NextPageWithLayout = () => {
     useEffect(() => void router.push('/terminal'), [])
 
     return (
-        <Flex className='h-full w-full bg-dark-600'>
+        <Flex className="h-full w-full bg-dark-600">
             <Typography.Title>Homepage</Typography.Title>
         </Flex>
     )
