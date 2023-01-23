@@ -10,6 +10,9 @@ const Component: FC = () => {
 
     const [isModalOpen, setModalOpen] = useState(false)
 
+    const closeModal = () => setModalOpen(false)
+    const openModal = () => setModalOpen(true)
+
     return (
         <Space.Compact>
             <Button
@@ -21,13 +24,13 @@ const Component: FC = () => {
                 }
             />
 
-            <Modal title={null} closable={false} open={isModalOpen} footer={null} onCancel={() => setModalOpen(false)}>
+            <Modal title={null} closable={false} open={isModalOpen} footer={null} onCancel={closeModal}>
                 <Flex direction="column" className="gap-2">
                     {shells.map((shell, index) => (
                         <Button
                             key={index}
                             onClick={() => {
-                                setModalOpen(false)
+                                closeModal()
                                 spawnShell(shell)
                             }}
                             className="w-full flex items-center gap-2"
@@ -43,7 +46,7 @@ const Component: FC = () => {
             </Modal>
 
             <Button
-                onClick={() => setModalOpen(true)}
+                onClick={openModal}
                 icon={
                     <Center>
                         <CaretDown />
