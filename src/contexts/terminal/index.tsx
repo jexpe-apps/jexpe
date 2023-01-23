@@ -89,7 +89,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                         {
                             id,
                             shell,
-                            title: shell.display_name,
+                            title: shell.name,
                             xterm,
                         },
                     ])

@@ -99,7 +99,7 @@ The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is opti
 >* don't capitalize the first letter
 >* no dot (.) at the end
 
-**You must follow this convention also for the working branch name: `<type>/<summary>`, e.g. `build/migrate_yarn`.**
+**You must follow this convention also for the working branch name: `<type>/<summary>`, _e.g. `build/migrate_yarn`.**
 
 ##### Some clarifications
 >- It's OK to have multiple small commits as you work on the PR - We will let GitHub automatically squash it before
@@ -111,7 +111,7 @@ The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is opti
 >      greenlighted before working on it.
 >
 >- If fixing a bug:
->    - If you are resolving a special issue, in the `<scope>` set the issue id in your PR title for a better release log, e.g. `fix(#3899): ...`.
+>    - If you are resolving a special issue, in the `<scope>` set the issue id in your PR title for a better release log, _e.g. `fix(#3899): ...`.
 >    - Provide detailed description of the bug in the PR, or link to an issue that does.
 
 ## Financial Contribution

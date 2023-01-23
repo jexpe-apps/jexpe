@@ -29,15 +29,15 @@ pub async fn spawn_pty(
 
     // Spawn our process within the pty
     let mut cmd = CommandBuilder::new(shell.command.clone());
-    // cmd.args(args);
+    cmd.args(shell.args.clone());
 
-    cmd.cwd(shell.directory.clone());
+    if let Some(dir) = shell.cwd.clone() {
+        cmd.cwd(dir);
+    }
 
-    // if let Some(environment) = environment {
-    //     for (key, value) in environment {
-    //         cmd.env(key, value)
-    //     }
-    // }
+    for (key, value) in shell.env.clone() {
+        cmd.env(key, value)
+    }
 
     let mut child = pty_slave
         .spawn_command(cmd)
@@ -72,7 +72,6 @@ pub async fn spawn_pty(
         loop {
             match stdout_reader.read(&mut buf) {
                 Ok(n) if n > 0 => {
-
                     app_handle_clone
                         .emit_all(PTY_STDOUT_EVENT, PtyStdoutPayload {
                             id: id_clone.clone(),
