@@ -15,12 +15,14 @@ export interface ITerminalContext {
     focused: string | undefined
     focus: (id: string) => void
 }
-
 export interface ISystemShell {
-    display_name: string
-    icon: string
+    id: string
+    name: string
     command: string
-    directory: string
+    args?: string[]
+    env: Record<string, string>
+    cwd?: string
+    icon: string
 }
 
 export interface IPTYSpawnPayload extends UniqueObject {

@@ -1,8 +1,8 @@
 import React, { FC, useCallback, useState } from 'react'
 import Link from 'next/link'
 import { Button, theme, Typography } from 'antd'
-import type { ITabProps } from './types'
 import { Center, Flex } from 'src/components'
+import type { ITabProps } from './types'
 import { X } from 'phosphor-react'
 
 const Component: FC<ITabProps> = ({ href, label, icon, onClick, active }) => {

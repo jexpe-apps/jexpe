@@ -1,6 +1,10 @@
+use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 pub mod commands;
+
+#[cfg(target_os = "windows")]
+mod windows;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct PtyStdoutPayload {
@@ -10,8 +14,11 @@ struct PtyStdoutPayload {
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct SystemShell {
-    pub display_name: String,
-    pub icon: String,
+    pub id: String,
+    pub name: String,
     pub command: String,
-    pub directory: String,
+    pub args: Vec<String>,
+    pub env: HashMap<String, String>,
+    pub cwd: Option<String>,
+    pub icon: String,
 }

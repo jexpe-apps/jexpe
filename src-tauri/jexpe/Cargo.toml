@@ -17,6 +17,10 @@ tauri = { version = "1.2", features = [] }
 tokio = { version = "1.24", features = ["macros", "rt", "sync", "time"] }
 cuid = { version = "1.2.0" }
 portable-pty = { git = "https://github.com/wez/wezterm.git", features = ["serde_support"] }
+phf = { version = "0.11.1", features = ["macros"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+winreg = "0.10.1"
 
 [features]
 # by default Tauri runs in production mode

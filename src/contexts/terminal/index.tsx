@@ -3,10 +3,10 @@ import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/tauri'
 
 import { GET_SYSTEM_SHELLS_COMMAND, PTY_EXIT_EVENT, PTY_RESIZE_COMMAND, PTY_SPAWN_COMMAND, PTY_SPAWN_EVENT, PTY_STDIN_COMMAND, PTY_STDOUT_EVENT } from './constants'
+import { useRouter } from 'next/router'
 
 import type { FCWithChildren } from 'src/types'
 import type { ITerminal, ITerminalContext, IPTYSpawnPayload, IPTYExitPayload, IPTYSdoutPayload, ISystemShell } from './types'
-import { useRouter } from 'next/router'
 
 const TerminalContext = createContext<ITerminalContext>({
     shells: [],
@@ -20,6 +20,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
     const [shells, setShells] = useState<ISystemShell[]>([])
     const [terminals, setTerminals] = useState<ITerminal[]>([])
     const [focused, setFocused] = useState<string | undefined>(undefined)
+
     const router = useRouter()
 
     const spawnShell = (shell: ISystemShell) => {
@@ -91,7 +92,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                         {
                             id,
                             shell,
-                            title: shell.display_name,
+                            title: shell.name,
                             xterm,
                         },
                     ])
@@ -102,6 +103,7 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
                     if (router.asPath !== '/terminal') {
                         void router.push('/terminal')
                     }
+                    
                 })
                 // TODO: Maybe kill pty, just to be on the safe side (?)
                 .catch(console.error)
