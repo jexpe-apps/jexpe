@@ -1,7 +1,9 @@
-import React, { FC } from 'react'
+import React, { FC, useCallback, useState } from 'react'
 import Link from 'next/link'
 import { Button, theme, Typography } from 'antd'
+import { Center, Flex } from 'src/components'
 import type { ITabProps } from './types'
+import { X } from 'phosphor-react'
 
 const Component: FC<ITabProps> = ({ href, label, icon, onClick, active }) => {
     const { token } = theme.useToken()
@@ -13,7 +15,7 @@ const Component: FC<ITabProps> = ({ href, label, icon, onClick, active }) => {
         else if (isHover) return token.colorPrimaryHover
         else return token.colorBorder
     }, [active, isHover])
-    
+
     return (
         <Link href={href} className="w-full">
             <Flex
