@@ -9,6 +9,9 @@ mod windows;
 #[cfg(target_os = "macos")]
 mod macos;
 
+#[cfg(target_os = "linux")]
+mod linux;
+
 #[derive(Serialize, Deserialize, Clone)]
 struct PtyStdoutPayload {
     id: String,

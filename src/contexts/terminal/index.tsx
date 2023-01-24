@@ -136,8 +136,8 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 
 			setTerminals((terminals) => {
 				// Focus the next terminal in the array
-				const toFocus = terminals[index + 1] || terminals[index - 1]
-				setFocused(toFocus.id)
+				const toFocus = terminals.at(index + 1) ?? terminals.at(index - 1)
+				setFocused(toFocus?.id)
 
 				// Remove the terminal from the array
 				terminals.splice(index, 1)

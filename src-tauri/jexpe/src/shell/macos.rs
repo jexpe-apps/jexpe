@@ -12,27 +12,25 @@ pub fn get_available_shells() -> Vec<SystemShell> {
 
     let file = File::open("/etc/shells");
     if let Ok(file) = file {
-        for path in BufReader::new(file)
+        for line in BufReader::new(file)
             .lines()
-            .filter_map(|line| line.ok())
-            .map(|line| line.split("#").next())
-            .filter_map(|shell| shell.map(str::trim)) {
-
-            if let Some(name) = path.splt("/").last() {
-
-                shells.push(SystemShell {
-                    id: name.to_string(),
-                    name: name.to_string(),
-                    command: path.to_string(),
-                    args: Vec::new(),
-                    env: HashMap::new(),
-                    cwd: None,
-                    icon: ICON_MAPPINGS.get(name.clone().as_ref()).cloned()
-                        .unwrap_or("/assets/icons/bash.svg").to_string(),
-                });
-
+            .filter_map(|line| line.ok()) {
+            if let Some(path) = line.split('#').next() {
+                if !path.trim().is_empty() {
+                    if let Some(name) = path.split('/').last() {
+                        shells.push(SystemShell {
+                            id: name.to_string(),
+                            name: name.to_string(),
+                            command: path.to_string(),
+                            args: Vec::new(),
+                            env: HashMap::new(),
+                            cwd: None,
+                            icon: ICON_MAPPINGS.get(name).cloned()
+                                .unwrap_or("/assets/icons/bash.svg").to_string(),
+                        });
+                    }
+                }
             }
-
         }
     }
 
