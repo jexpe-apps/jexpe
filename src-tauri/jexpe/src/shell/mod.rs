@@ -3,14 +3,11 @@ use serde::{Deserialize, Serialize};
 
 pub mod commands;
 
-#[cfg(target_os = "windows")]
+#[cfg(target_family = "windows")]
 mod windows;
 
-#[cfg(target_os = "macos")]
-mod macos;
-
-#[cfg(target_os = "linux")]
-mod linux;
+#[cfg(target_family = "unix")]
+mod unix;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct PtyStdoutPayload {
