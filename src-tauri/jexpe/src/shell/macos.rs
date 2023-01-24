@@ -11,33 +11,30 @@ pub fn get_available_shells() -> Vec<SystemShell> {
     let mut shells = Vec::new();
 
     let file = File::open("/etc/shells");
-    let reader = BufReader::new(file.unwrap());
+    if let Ok(file) = file {
+        for path in BufReader::new(file)
+            .lines()
+            .filter_map(|line| line.ok())
+            .map(|line| line.split("#").next())
+            .filter_map(|shell| shell.map(str::trim)) {
 
-    for line in reader.lines().into_iter()
-    .filter_map(|x| x.ok())
-    .filter_map(|x| if x.starts_with("#") { None } else { Some(x) }) {
-        let splitted_line: Vec<String> = line.split("#").map(|s| s.to_string()).collect();
-        let shell_path = splitted_line[0].trim();
-        let splitted_path: Vec<String> = shell_path.split("/").map(|s| s.to_string()).collect();
-        let shell_name = &splitted_path[splitted_path.len() - 1];
-        if shell_path.len() > 0 {
-            shells.push(SystemShell { 
-                id: shell_name.to_string(), 
-                name: shell_name.to_string(), 
-                command: shell_path.to_string(), 
-                args: Vec::new(), 
-                env: HashMap::new(), 
-                cwd: None, 
-                icon: ICON_MAPPINGS.get(shell_name.clone().as_ref()).cloned()
-                .unwrap_or("/assets/icons/bash.svg").to_string() 
-            });
+            if let Some(name) = path.splt("/").last() {
+
+                shells.push(SystemShell {
+                    id: name.to_string(),
+                    name: name.to_string(),
+                    command: path.to_string(),
+                    args: Vec::new(),
+                    env: HashMap::new(),
+                    cwd: None,
+                    icon: ICON_MAPPINGS.get(name.clone().as_ref()).cloned()
+                        .unwrap_or("/assets/icons/bash.svg").to_string(),
+                });
+
+            }
+
         }
     }
-
-
-    // TODO default shell: /usr/bin/dscl . -read /Users/${LOGNAME} UserShell`
-
-
 
     shells
 }

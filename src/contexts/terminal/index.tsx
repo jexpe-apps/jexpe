@@ -1,9 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import { invoke } from '@tauri-apps/api/tauri'
+import { useRouter } from 'next/router'
 
 import { GET_SYSTEM_SHELLS_COMMAND, PTY_EXIT_EVENT, PTY_RESIZE_COMMAND, PTY_SPAWN_COMMAND, PTY_SPAWN_EVENT, PTY_STDIN_COMMAND, PTY_STDOUT_EVENT } from './constants'
-import { useRouter } from 'next/router'
 
 import type { FCWithChildren } from 'src/types'
 import type { ITerminal, ITerminalContext, IPTYSpawnPayload, IPTYExitPayload, IPTYSdoutPayload, ISystemShell } from './types'
@@ -55,11 +55,11 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 						overviewRulerWidth: 8,
 					})
 
-					xterm.onData((data) =>
+					xterm.onData((data) => {
 						invoke(PTY_STDIN_COMMAND, { id, data })
 							// TODO: Handle errors properly
 							.catch(console.error)
-					)
+					})
 
 					xterm.onResize((size) =>
 						invoke(PTY_RESIZE_COMMAND, {
@@ -76,29 +76,21 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 					)
 
 					xterm.onTitleChange((title) => {
-						setTerminals((terminals) =>
-							terminals.map((terminal) => {
-								if (terminal.id === id) {
-									return {
-										...terminal,
-										title,
-									}
-								}
-								return terminal
-							})
-						)
+						setTerminals((terminals) => {
+							const index = terminals.findIndex((x) => x.id === id)
+							if (index < 0) {
+								// This should never happen, but just to be on the safe side
+								console.error(`[TITLE-LISTENER] Could not find terminal with id ${id}`)
+								return terminals
+							}
+
+							terminals[index].title = title
+							return [...terminals]
+						})
 					})
 
 					// Add the terminal to the context
-					setTerminals((terminals) => [
-						...terminals,
-						{
-							id,
-							shell,
-							title: shell.name,
-							xterm,
-						},
-					])
+					setTerminals((terminals) => [...terminals, { id, shell, title: shell.name, xterm }])
 
 					// Focus the new terminal
 					setFocused(id)
@@ -130,10 +122,11 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 			const { id, success, code } = payload
 
 			// Find the terminal with the given id
-			const terminal = terminals.find((terminal) => terminal.id === id)
-			if (!terminal) {
+			const index = terminals.findIndex((terminal) => terminal.id === id)
+			if (index < 0) {
 				// This should never happen, but just to be on the safe side
 				console.error(`[EXIT-LISTENER] Could not find terminal with id ${id}`)
+				setFocused(undefined)
 				return
 			}
 
@@ -141,14 +134,14 @@ export const TerminalContextProvider: FCWithChildren = ({ children }) => {
 			void success
 			void code
 
-			// Remove the terminal from the context
 			setTerminals((terminals) => {
-				terminals = terminals.filter((terminal) => terminal.id !== id)
+				// Focus the next terminal in the array
+				const toFocus = terminals[index + 1] || terminals[index - 1]
+				setFocused(toFocus.id)
 
-				// Focus the nearby left/right terminal
-				setFocused(terminals.length > 0 ? terminals[0].id : undefined)
-
-				return terminals
+				// Remove the terminal from the array
+				terminals.splice(index, 1)
+				return [...terminals]
 			})
 		})
 

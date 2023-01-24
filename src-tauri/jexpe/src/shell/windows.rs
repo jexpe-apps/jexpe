@@ -70,35 +70,23 @@ fn get_stock(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
 fn get_gitbash(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
     let mut gitbash_path: Option<String> = None;
 
-    {
-        match RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey("Software\\GitForWindows") {
-            Ok(regkey) => {
-                match regkey.get_value("InstallPath") {
-                    Ok(path) => gitbash_path = Some(path),
-                    Err(_e) => {}
-                };
-            }
-            Err(_) => {}
+    if let Ok(regkey) = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey("Software\\GitForWindows") {
+        if let Ok(path) = regkey.get_value("InstallPath") {
+            gitbash_path = Some(path);
         }
     }
 
-    {
-        match RegKey::predef(HKEY_CURRENT_USER).open_subkey("Software\\GitForWindows") {
-            Ok(regkey) => {
-                match regkey.get_value("InstallPath") {
-                    Ok(path) => gitbash_path = Some(path),
-                    Err(_e) => {}
-                };
-            }
-            Err(_) => {}
+    if let Ok(regkey) = RegKey::predef(HKEY_CURRENT_USER).open_subkey("Software\\GitForWindows") {
+        if let Ok(path) = regkey.get_value("InstallPath") {
+            gitbash_path = Some(path);
         }
     }
 
-    if let Some(gitbash_path) = gitbash_path {
+    if let Some(path) = gitbash_path {
         shells.push(SystemShell {
-            id: "git=bash".to_string(),
+            id: "git-bash".to_string(),
             name: "Git Bash".to_string(),
-            command: format!("{}\\bin\\bash.exe", gitbash_path),
+            command: format!("{}\\bin\\bash.exe", path),
             args: Vec::from(["--login".to_string(), "-i".to_string()]),
             env: HashMap::from([
                 ("TERM".to_string(), "cygwin".to_string())
