@@ -25,7 +25,7 @@ const Component: FC = () => {
 		token: { paddingXS },
 	} = theme.useToken()
 
-	const { terminals, focused, focus } = useTerminal()
+	const { terminals, focused, focus, killPty } = useTerminal()
 
 	// a little function to help us with reordering the result
 	// const reorder = (list: any, startIndex: any, endIndex: any) => {
@@ -77,6 +77,7 @@ const Component: FC = () => {
 															</Center>
 														}
 														onClick={() => focus(terminal.id)}
+														onClose={() => killPty(terminal.id)}
 														active={asPath === '/terminal' && focused === terminal.id}
 														dragging={snapshot.isDragging}
 													/>
