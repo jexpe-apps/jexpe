@@ -1,13 +1,13 @@
 use crate::shell::SystemShell;
 
+#[cfg(target_family = "windows")]
 #[tauri::command]
 pub fn get_system_shells() -> Result<Vec<SystemShell>, String> {
+    Ok(crate::shell::windows::get_available_shells())
+}
 
-    if cfg!(target_os = "windows") {
-        return Ok(crate::shell::windows::get_available_shells())
-    }
-
-    if cfg!(target_os = "macos") {}
-
-    Ok(Vec::new())
+#[cfg(target_family = "unix")]
+#[tauri::command]
+pub fn get_system_shells() -> Result<Vec<SystemShell>, String> {
+    Ok(crate::shell::unix::get_available_shells())
 }

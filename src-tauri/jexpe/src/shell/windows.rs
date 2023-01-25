@@ -70,35 +70,23 @@ fn get_stock(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
 fn get_gitbash(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
     let mut gitbash_path: Option<String> = None;
 
-    {
-        match RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey("Software\\GitForWindows") {
-            Ok(regkey) => {
-                match regkey.get_value("InstallPath") {
-                    Ok(path) => gitbash_path = Some(path),
-                    Err(_e) => {}
-                };
-            }
-            Err(_) => {}
+    if let Ok(regkey) = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey("Software\\GitForWindows") {
+        if let Ok(path) = regkey.get_value("InstallPath") {
+            gitbash_path = Some(path);
         }
     }
 
-    {
-        match RegKey::predef(HKEY_CURRENT_USER).open_subkey("Software\\GitForWindows") {
-            Ok(regkey) => {
-                match regkey.get_value("InstallPath") {
-                    Ok(path) => gitbash_path = Some(path),
-                    Err(_e) => {}
-                };
-            }
-            Err(_) => {}
+    if let Ok(regkey) = RegKey::predef(HKEY_CURRENT_USER).open_subkey("Software\\GitForWindows") {
+        if let Ok(path) = regkey.get_value("InstallPath") {
+            gitbash_path = Some(path);
         }
     }
 
-    if let Some(gitbash_path) = gitbash_path {
+    if let Some(path) = gitbash_path {
         shells.push(SystemShell {
-            id: "git=bash".to_string(),
+            id: "git-bash".to_string(),
             name: "Git Bash".to_string(),
-            command: format!("{}\\bin\\bash.exe", gitbash_path),
+            command: format!("{}\\bin\\bash.exe", path),
             args: Vec::from(["--login".to_string(), "-i".to_string()]),
             env: HashMap::from([
                 ("TERM".to_string(), "cygwin".to_string())
@@ -112,59 +100,47 @@ fn get_gitbash(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
 }
 
 fn get_powershell_core(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
-    match RegKey::predef(HKEY_LOCAL_MACHINE)
+    if let Ok(regkey) = RegKey::predef(HKEY_LOCAL_MACHINE)
         .open_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\pwsh.exe") {
-        Ok(regkey) => {
-            match regkey.get_value("".to_string()) {
-                Ok(path) => {
-                    shells.push(SystemShell {
-                        id: "powershell-core".to_string(),
-                        name: "PowerShell Core".to_string(),
-                        command: path,
-                        args: Vec::from(["-NoLogo".to_string()]),
-                        env: HashMap::from([
-                            ("TERM".to_string(), "cygwin".to_string())
-                        ]),
-                        cwd: None,
-                        icon: "/assets/icons/powershell-core.svg".to_string(),
-                    });
-                }
-                Err(_) => {}
-            }
+        if let Ok(path) = regkey.get_value("") {
+            shells.push(SystemShell {
+                id: "powershell-core".to_string(),
+                name: "PowerShell Core".to_string(),
+                command: path,
+                args: Vec::from(["-NoLogo".to_string()]),
+                env: HashMap::from([
+                    ("TERM".to_string(), "cygwin".to_string())
+                ]),
+                cwd: None,
+                icon: "/assets/icons/powershell-core.svg".to_string(),
+            });
         }
-        Err(_) => {}
-    };
+    }
 
     shells
 }
 
 fn get_vscode(mut shells: Vec<SystemShell>) -> Vec<SystemShell> {
-    match env::var("ProgramFiles") {
-        Ok(program_files) => {
-            let path = Path::new(&program_files).join("Microsoft Visual Studio").display().to_string();
-            match fs::read_dir(path) {
-                Ok(versions) => {
-                    for path in versions
-                        .filter_map(|x| x.ok())
-                        .map(|x| x.path()) {
-                        let version = path.file_name().unwrap().to_str().unwrap();
-                        let bat = path.join("Community\\Common7\\Tools\\VsDevCmd.bat").display().to_string();
+    if let Ok(program_files) = env::var("ProgramFiles") {
+        let path = Path::new(&program_files).join("Microsoft Visual Studio").display().to_string();
+        if let Ok(dirs) = fs::read_dir(path) {
+            for dir in dirs
+                .filter_map(|x| x.ok())
+                .map(|x| x.path()) {
+                let version = dir.file_name().unwrap().to_str().unwrap();
+                let bat = dir.join("Community\\Common7\\Tools\\VsDevCmd.bat").display().to_string();
 
-                        shells.push(SystemShell {
-                            id: format!("vs-cmd-{}", version),
-                            name: format!("Developer Prompt for VS {}", version),
-                            command: "cmd.exe".to_string(),
-                            args: Vec::from(["/k".to_string(), bat]),
-                            env: HashMap::new(),
-                            cwd: None,
-                            icon: format!("/assets/icons/vs{}.svg", version),
-                        })
-                    }
-                }
-                _ => {}
-            };
+                shells.push(SystemShell {
+                    id: format!("vs-cmd-{}", version),
+                    name: format!("Developer Prompt for VS {}", version),
+                    command: "cmd.exe".to_string(),
+                    args: Vec::from(["/k".to_string(), bat]),
+                    env: HashMap::new(),
+                    cwd: None,
+                    icon: format!("/assets/icons/vs{}.svg", version),
+                })
+            }
         }
-        Err(_) => {}
     }
 
     shells

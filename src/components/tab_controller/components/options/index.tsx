@@ -7,40 +7,30 @@ import { Center, Flex } from 'src/components'
 
 const Component: FC = () => {
     const { shells, spawnShell } = useTerminal()
-    
-    const [open, setOpen] = useState(false)
 
-    const showModal = () => {
-        setOpen(true)
-    }
+    const [isModalOpen, setModalOpen] = useState(false)
 
-    const handleOk = (e: React.MouseEvent<HTMLElement>) => {
-        console.log(e)
-        setOpen(false)
-    }
-
-    const handleCancel = (e: React.MouseEvent<HTMLElement>) => {
-        console.log(e)
-        setOpen(false)
-    }
+    const closeModal = () => setModalOpen(false)
+    const openModal = () => setModalOpen(true)
 
     return (
         <Space.Compact>
             <Button
+                onClick={() => spawnShell(shells[0])}
                 icon={
                     <Center>
                         <Plus />
                     </Center>
                 }
             />
-            
-            <Modal title="Select profile" open={open} onOk={handleOk} onCancel={handleCancel} footer={null}>
+
+            <Modal title={null} closable={false} open={isModalOpen} footer={null} onCancel={closeModal}>
                 <Flex direction="column" className="gap-2">
                     {shells.map((shell, index) => (
                         <Button
                             key={index}
                             onClick={() => {
-                                setOpen(false)
+                                closeModal()
                                 spawnShell(shell)
                             }}
                             className="w-full flex items-center gap-2"
@@ -56,7 +46,7 @@ const Component: FC = () => {
             </Modal>
 
             <Button
-                onClick={showModal}
+                onClick={openModal}
                 icon={
                     <Center>
                         <CaretDown />
