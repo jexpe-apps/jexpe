@@ -20,7 +20,7 @@
   </a>
 </p>
 
-Jexpe is a free, open source SSH and SFTP client that makes connecting to your remote servers easy.
+Jexpe is a cross-platform, open source SSH and SFTP client that makes connecting to your remote servers easy.
 
 ## Getting Started
 
